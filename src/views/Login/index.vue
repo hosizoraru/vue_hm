@@ -17,14 +17,14 @@
           label="账号"
           prop="username"
         >
-          <el-input v-model="form.username"/>
+          <el-input v-model="form.username" @change="checkRememberUsername"/>
         </el-form-item>
 
         <el-form-item
           label="密码"
           prop="password"
         >
-          <el-input v-model="form.password"/>
+          <el-input v-model="form.password" @change="checkRememberPassword"/>
         </el-form-item>
 
         <!--        <el-form-item-->
@@ -131,6 +131,16 @@ export default {
       localStorage.setItem('remember', String(remember))
       if (remember) {
         this.saveUserInfo(this.form.username, this.form.password, remember)
+      }
+    },
+    checkRememberUsername(username) {
+      if (this.remember) {
+        localStorage.setItem('username', username)
+      }
+    },
+    checkRememberPassword(password) {
+      if (this.remember) {
+        localStorage.setItem('password', password)
       }
     }
   }
