@@ -56,7 +56,7 @@
     </main>
     <footer class="add-footer">
       <div class="btn-container">
-        <el-button>重置</el-button>
+        <el-button @click="clearAdd">重置</el-button>
         <el-button type="primary" @click="confirmAdd">确定</el-button>
       </div>
     </footer>
@@ -122,16 +122,26 @@ export default {
             this.$refs.feeForm.validate(
               valid => {
                 if (valid) {
+                  // this.$message.success('添加成功')
                   this.$message({
                     type: 'success',
                     message: '添加成功'
                   })
+                  this.$router.back()
+                } else {
+                  this.$message.error('请填写完整的缴费信息')
                 }
               }
             )
+          } else {
+            this.$message.error('请填写完整的车辆信息')
           }
         }
       )
+    },
+    clearAdd() {
+      this.$refs.carInfoForm.resetFields()
+      this.$refs.feeForm.resetFields()
     }
   }
 }

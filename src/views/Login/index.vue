@@ -179,6 +179,9 @@ export default {
                 }
               }
             )
+          } else {
+            // 整体校验不通过 提示用户
+            this.$message.error('请填写完整的登陆信息')
           }
         }
       )
