@@ -1,13 +1,16 @@
 import axios from 'axios'
+
 const service = axios.create({
   baseURL: 'https://api-hmzs.itheima.net/v1',
   timeout: 5000 // request timeout ms
 })
 
-// 请求拦截器
+// 请求拦截器 统一添加请求头
 service.interceptors.request.use(
   config => {
     // 添加 token
+    config.headers.Authorization =
+      'Bearer ' + localStorage.getItem('token')
     return config
   },
   error => {
