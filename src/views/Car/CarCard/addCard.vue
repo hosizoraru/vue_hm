@@ -110,6 +110,8 @@ export default {
       payMethodList: [
         { id: 'Alipay', name: '支付宝' },
         { id: 'WeChat', name: '微信' },
+        { id: 'UnionPay', name: '银联' },
+        { id: 'ApplePay', name: 'Apple Pay' },
         { id: 'Cash', name: '线下' }
       ]
     }
