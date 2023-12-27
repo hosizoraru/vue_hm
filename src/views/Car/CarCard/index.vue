@@ -42,10 +42,25 @@
       </el-table>
     </div>
     <!-- 分页结构 -->
+    <!--layout="total, sizes, prev, pager, next, jumper"-->
+    <!--
+        layout 布局控件
+        :total 总条数
+        :current-page 默认第几页
+        :page-size 每页显示条数 // 默认为 10
+        :page-sizes 每页显示条数的选择器 // 默认为 10 20 30 40 50 100
+        @size-change 每页显示条数改变时触发
+        @current-change 当前页改变时触发
+    -->
     <div class="page-container">
       <el-pagination
-        :total="0"
-        layout="total, prev, pager, next"
+        :current-page="params.page"
+        :page-size="params.pageSize"
+        :page-sizes="[2, 3, 5, 10, 15, 20, 30]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
     <!-- 添加楼宇 -->
@@ -93,7 +108,13 @@ export default {
     return {
       // 提供列表数据
       // 发送请求获取后端端口中的数据存进来
-      list: []
+      list: [],
+      total: 0,
+      params: {
+        page: 1,
+        pageSize: 10
+        // pageSizes: [2, 3, 5, 10, 15, 20, 30]
+      }
     }
   },
   computed: {
@@ -105,21 +126,38 @@ export default {
   mounted() {
     // console.log('页面加载好了，可以发送请求宣传页面结构了')
     getMonthCardListAPI(
-      {
-        page: 1,
-        pageSize: 10
-      }
+      this.params
     ).then(
       // => 箭头函数 没有 this 的指向问题
       res => {
-        // console.log(res.data.rows, 999)
+        console.log(res.data, 999)
         this.list = res.data.rows
+        this.total = res.data.total
         console.log(this.list)
       }
     )
   },
-  methods() {
-
+  methods: {
+    handleSizeChange(pageSize) {
+      console.log('每页显示条数:', pageSize)
+      this.params.pageSize = pageSize
+      getMonthCardListAPI(this.params).then(
+        res => {
+          this.list = res.data.rows
+          this.total = res.data.total
+        }
+      )
+    },
+    handleCurrentChange(page) {
+      console.log('当前页:', page)
+      this.params.page = page
+      getMonthCardListAPI(this.params).then(
+        res => {
+          this.list = res.data.rows
+          this.total = res.data.total
+        }
+      )
+    }
   }
 }
 </script>
