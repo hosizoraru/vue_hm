@@ -1,16 +1,20 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
-Vue.use(Router)
-
 /* Layout */
 import Layout from '@/layout'
+
+Vue.use(Router)
 
 export const routes = [
   {
     path: '/login',
     component: () => import('@/views/Login/index'),
     // meta: { title: 'login', icon: 'el-icon-data-board' },
+    hidden: true // 对菜单隐藏
+  },
+  {
+    path: '/addCard',
+    component: () => import('@/views/Car/CarCard/addCard'),
     hidden: true // 对菜单隐藏
   },
   {

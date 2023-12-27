@@ -15,7 +15,7 @@
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
-      <el-button type="primary">添加月卡</el-button>
+      <el-button type="primary" @click="addCard">添加月卡</el-button>
       <el-button>批量删除</el-button>
     </div>
     <!--
@@ -51,9 +51,14 @@
         :page-sizes 每页显示条数的选择器 // 默认为 10 20 30 40 50 100
         @size-change 每页显示条数改变时触发
         @current-change 当前页改变时触发
+        @prev-click 上一页按钮点击时触发
+        @next-click 下一页按钮点击时触发
+        当只有一页时，通过设置 hide-on-single-page 属性来隐藏分页
     -->
     <div class="page-container">
+      <el-switch v-model="value"/>
       <el-pagination
+        :hide-on-single-page="value"
         :current-page="params.page"
         :page-size="params.pageSize"
         :page-sizes="[2, 3, 5, 10, 15, 20, 30]"
@@ -114,7 +119,8 @@ export default {
         page: 1,
         pageSize: 10
         // pageSizes: [2, 3, 5, 10, 15, 20, 30]
-      }
+      },
+      value: false
     }
   },
   computed: {
@@ -125,22 +131,21 @@ export default {
   // created() {}
   mounted() {
     // console.log('页面加载好了，可以发送请求宣传页面结构了')
-    getMonthCardListAPI(
-      this.params
-    ).then(
-      // => 箭头函数 没有 this 的指向问题
-      res => {
-        console.log(res.data, 999)
-        this.list = res.data.rows
-        this.total = res.data.total
-        console.log(this.list)
-      }
-    )
+    // getMonthCardListAPI(
+    //   this.params
+    // ).then(
+    //   // => 箭头函数 没有 this 的指向问题
+    //   res => {
+    //     // console.log(res.data, 999)
+    //     // console.log(this.list)
+    //     this.list = res.data.rows
+    //     this.total = res.data.total
+    //   }
+    // )
+    this.getList()
   },
   methods: {
-    handleSizeChange(pageSize) {
-      console.log('每页显示条数:', pageSize)
-      this.params.pageSize = pageSize
+    getList() {
       getMonthCardListAPI(this.params).then(
         res => {
           this.list = res.data.rows
@@ -148,15 +153,19 @@ export default {
         }
       )
     },
+    handleSizeChange(pageSize) {
+      // console.log('每页显示条数:', pageSize)
+      this.params.pageSize = pageSize
+      // this.params.page = 1 // 现在已经没必要
+      this.getList()
+    },
     handleCurrentChange(page) {
-      console.log('当前页:', page)
+      // console.log('当前页:', page)
       this.params.page = page
-      getMonthCardListAPI(this.params).then(
-        res => {
-          this.list = res.data.rows
-          this.total = res.data.total
-        }
-      )
+      this.getList()
+    },
+    addCard() {
+      this.$router.push('addCard')
     }
   }
 }
