@@ -165,7 +165,7 @@ export default {
       this.getList()
     },
     addCard() {
-      this.$router.push('addCard')
+      this.$router.push('/addCard')
     }
   }
 }
