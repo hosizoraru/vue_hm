@@ -179,6 +179,10 @@ export default {
                       })
                       this.$router.back()
                     }
+                  ).catch(
+                    error => {
+                      this.$message.error(error.response.data.msg)
+                    }
                   )
                   // console.log(payload)
                   // await createCardAPI(payload)

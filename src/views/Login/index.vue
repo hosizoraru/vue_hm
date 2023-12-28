@@ -178,6 +178,11 @@ export default {
                   localStorage.removeItem('password')
                 }
               }
+            ).catch(
+              error => {
+                this.$message.error(error.response.data.msg)
+                // console.dir(error)
+              }
             )
           } else {
             // 整体校验不通过 提示用户

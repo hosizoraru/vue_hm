@@ -4,14 +4,19 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <span class="search-label">车牌号码：</span>
-      <el-input class="search-main" clearable placeholder="请输入内容"/>
+      <el-input v-model="params.carNumber" class="search-main" clearable placeholder="请输入内容"/>
       <span class="search-label">车主姓名：</span>
-      <el-input class="search-main" clearable placeholder="请输入内容"/>
+      <el-input v-model="params.personName" class="search-main" clearable placeholder="请输入内容"/>
       <span class="search-label">状态：</span>
-      <el-select>
-        <el-option v-for="item in []" :key="item.id"/>
+      <el-select v-model="params.cardStatus">
+        <el-option
+          v-for="status in cardStatusList"
+          :key="status.id"
+          :label="status.name"
+          :value="status.id"
+        />
       </el-select>
-      <el-button class="search-btn" type="primary">查询</el-button>
+      <el-button class="search-btn" type="primary" @click="doSearch">查询</el-button>
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
@@ -117,10 +122,27 @@ export default {
       total: 0,
       params: {
         page: 1,
-        pageSize: 10
+        pageSize: 10,
+        carNumber: '',
+        personName: '',
+        cardStatus: null
         // pageSizes: [2, 3, 5, 10, 15, 20, 30]
       },
-      value: false
+      value: false,
+      cardStatusList: [
+        {
+          id: null,
+          name: '全部'
+        },
+        {
+          id: 0,
+          name: '正常可用'
+        },
+        {
+          id: 1,
+          name: '已经过期'
+        }
+      ]
     }
   },
   computed: {
@@ -166,6 +188,10 @@ export default {
     },
     addCard() {
       this.$router.push('/addCard')
+    },
+    doSearch() {
+      this.params.page = 1
+      this.getList()
     }
   }
 }
