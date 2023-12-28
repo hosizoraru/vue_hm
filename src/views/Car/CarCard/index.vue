@@ -4,9 +4,9 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <span class="search-label">车牌号码：</span>
-      <el-input v-model="params.carNumber" class="search-main" clearable placeholder="请输入内容"/>
+      <el-input v-model="params.carNumber" class="search-main" clearable placeholder="请输入内容" />
       <span class="search-label">车主姓名：</span>
-      <el-input v-model="params.personName" class="search-main" clearable placeholder="请输入内容"/>
+      <el-input v-model="params.personName" class="search-main" clearable placeholder="请输入内容" />
       <span class="search-label">状态：</span>
       <el-select v-model="params.cardStatus">
         <el-option
@@ -20,8 +20,13 @@
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
-      <el-button type="primary" @click="addCard">添加月卡</el-button>
-      <el-button>批量删除</el-button>
+      <el-button-group>
+        <el-button type="primary" @click="addCard">添加月卡<i class="el-icon-upload el-icon--right" /></el-button>
+        <el-button type="danger" icon="el-icon-delete">批量删除</el-button>
+      </el-button-group>
+      <el-button-group>
+        <el-button type="primary" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading">刷新页面</el-button>
+      </el-button-group>
     </div>
     <!--
         表格区域
@@ -30,18 +35,23 @@
     <div class="table">
       <!--需要把数据 data 传输给他-->
       <el-table :data="list" style="width: 100%">
-        <el-table-column label="序号" type="index"/>
-        <el-table-column label="车主名称" prop="personName"/>
-        <el-table-column label="联系方式" prop="phoneNumber"/>
-        <el-table-column label="车牌号码" prop="carNumber"/>
-        <el-table-column label="车辆品牌" prop="carBrand"/>
-        <el-table-column label="剩余有效天数" prop="totalEffectiveDate"/>
+        <el-table-column label="序号" type="index" />
+        <el-table-column label="车主名称" prop="personName" />
+        <el-table-column label="联系方式" prop="phoneNumber" />
+        <el-table-column label="车牌号码" prop="carNumber" />
+        <el-table-column label="车辆品牌" prop="carBrand" />
+        <el-table-column label="剩余有效天数" prop="totalEffectiveDate" />
         <el-table-column fixed="right" label="操作" width="180">
+          <!--
+            需要当前数据的 id scope 是一个对象
+            scope.row 当前行的数据
+            scope.row.id 当前行的 id
+          -->
           <template #default="scope">
             <el-button size="mini" type="text">续费</el-button>
             <el-button size="mini" type="text">查看</el-button>
             <el-button size="mini" type="text">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="deleteCard(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -61,7 +71,7 @@
         当只有一页时，通过设置 hide-on-single-page 属性来隐藏分页
     -->
     <div class="page-container">
-      <el-switch v-model="value"/>
+      <el-switch v-model="value" />
       <el-pagination
         :hide-on-single-page="value"
         :current-page="params.page"
@@ -110,7 +120,7 @@
   除了登陆接口 后端可以不认识你
   后端接口需要知道你是谁 需要 token
 */
-import { getMonthCardListAPI } from '@/api/car'
+import { deleteCardAPI, getMonthCardListAPI } from '@/api/car'
 import item from '@/layout/components/Sidebar/Item.vue'
 
 export default {
@@ -120,6 +130,8 @@ export default {
       // 发送请求获取后端端口中的数据存进来
       list: [],
       total: 0,
+      value: false,
+      refreshLoadingFlag: false,
       params: {
         page: 1,
         pageSize: 10,
@@ -128,7 +140,6 @@ export default {
         cardStatus: null
         // pageSizes: [2, 3, 5, 10, 15, 20, 30]
       },
-      value: false,
       cardStatusList: [
         {
           id: null,
@@ -192,6 +203,54 @@ export default {
     doSearch() {
       this.params.page = 1
       this.getList()
+    },
+    deleteCard(id) {
+      this.$confirm('此操作将永久删除该月卡信息, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(
+        async() => {
+          deleteCardAPI(id).then(
+            () => {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.getList()
+            }
+          ).catch(
+            error => {
+              this.$message.error(error.response.data.msg)
+            }
+          )
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
+      )
+    },
+    async refreshLoading() {
+      this.refreshLoadingFlag = true
+      await this.getList()
+      setTimeout(
+        () => {
+          this.refreshLoadingFlag = false
+        },
+        1000
+      )
+      // try {
+      //   this.refreshLoadingFlag = true
+      //   await this.getList()
+      //   this.refreshLoadingFlag = false
+      // } catch (error) {
+      //   this.refreshLoadingFlag = false
+      //   this.$message.error(error.response.data.msg)
+      // }
     }
   }
 }
@@ -220,6 +279,8 @@ export default {
 }
 
 .create-container {
+  display: flex;
+  justify-content: space-between;
   margin: 10px 0;
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="add-card">
     <header class="add-header">
-      <el-page-header content="增加月卡" @back="$router.back()"/>
+      <el-page-header content="增加月卡" @back="$router.back()" />
     </header>
     <main class="add-main">
       <div class="form-container">
@@ -9,16 +9,16 @@
         <div class="form">
           <el-form ref="carInfoForm" :model="carInfoForm" :rules="carInfoRules" label-width="100px">
             <el-form-item label="车主姓名" prop="personName">
-              <el-input v-model="carInfoForm.personName"/>
+              <el-input v-model="carInfoForm.personName" />
             </el-form-item>
             <el-form-item label="联系方式" prop="phoneNumber">
-              <el-input v-model="carInfoForm.phoneNumber"/>
+              <el-input v-model="carInfoForm.phoneNumber" />
             </el-form-item>
             <el-form-item label="车辆号码" prop="carNumber">
-              <el-input v-model="carInfoForm.carNumber"/>
+              <el-input v-model="carInfoForm.carNumber" />
             </el-form-item>
             <el-form-item label="车辆品牌" prop="carBrand">
-              <el-input v-model="carInfoForm.carBrand"/>
+              <el-input v-model="carInfoForm.carBrand" />
             </el-form-item>
           </el-form>
         </div>
@@ -40,7 +40,7 @@
               />
             </el-form-item>
             <el-form-item label="支付金额" prop="paymentAmount">
-              <el-input v-model="feeForm.paymentAmount"/>
+              <el-input v-model="feeForm.paymentAmount" />
             </el-form-item>
             <el-form-item label="支付方式" prop="paymentMethod">
               <el-select v-model="feeForm.paymentMethod">

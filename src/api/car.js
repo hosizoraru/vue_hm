@@ -51,3 +51,9 @@ export function createCardAPI(data) {
   })
 }
 
+export function deleteCardAPI(id) {
+  return request({
+    url: `parking/card/${id}`,
+    method: 'DELETE'
+  })
+}
