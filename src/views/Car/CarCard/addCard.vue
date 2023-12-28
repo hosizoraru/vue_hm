@@ -30,10 +30,13 @@
             <el-form-item label="有效日期" prop="payTime">
               <el-date-picker
                 v-model="feeForm.payTime"
+                :picker-options="pickerOptions"
+                align="right"
+                type="daterange"
                 end-placeholder="结束日期"
                 range-separator="至"
                 start-placeholder="开始日期"
-                type="daterange"
+                unlink-panels
               />
             </el-form-item>
             <el-form-item label="支付金额" prop="paymentAmount">
@@ -47,6 +50,9 @@
                   :label="item.name"
                   :value="item.id"
                 />
+                <!--<el-option label="微信" value="Wechat" />-->
+                <!--<el-option label="支付宝" value="Alipay" />-->
+                <!--<el-option label="线下" value="Cash" />-->
               </el-select>
             </el-form-item>
           </el-form>
@@ -64,6 +70,7 @@
 </template>
 
 <script>
+
 export default {
   data() {
     return {
@@ -97,7 +104,7 @@ export default {
       // 缴费规则
       feeFormRules: {
         payTime: [
-          { required: true, message: '请选择支付时间' }
+          { required: true, message: '请选择支付时间', trigger: 'blur' }
         ],
         paymentAmount: [
           { required: true, message: '请输入支付金额', trigger: 'blur' }
@@ -110,10 +117,37 @@ export default {
       payMethodList: [
         { id: 'Alipay', name: '支付宝' },
         { id: 'WeChat', name: '微信' },
-        { id: 'UnionPay', name: '银联' },
-        { id: 'ApplePay', name: 'Apple Pay' },
+        // { id: 'UnionPay', name: '银联' },
+        // { id: 'ApplePay', name: 'Apple Pay' },
         { id: 'Cash', name: '线下' }
-      ]
+      ],
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
+      }
     }
   },
   methods: {
@@ -125,6 +159,16 @@ export default {
               valid => {
                 if (valid) {
                   // this.$message.success('添加成功')
+                  const payload = {
+                    ...this.carInfoForm,
+                    ...this.feeForm,
+                    cardStartDate: this.feeForm.payTime[0],
+                    cardEndDate: this.feeForm.payTime[1]
+                  }
+                  delete payload.payTime
+                  // createCardAPI(payload)
+                  // console.log(payload)
+                  // await createCardAPI(payload)
                   this.$message({
                     type: 'success',
                     message: '添加成功'
