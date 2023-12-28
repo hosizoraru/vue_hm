@@ -50,3 +50,19 @@ export function createCardAPI(data) {
     data
   })
 }
+
+export function editCardAPI(data) {
+  return request({
+    url: 'parking/card/edit',
+    method: 'PUT',
+    data
+  })
+}
+
+export function rechargeCardAPI(data) {
+  return request({
+    url: 'parking/card/recharge',
+    method: 'POST',
+    data
+  })
+}
