@@ -71,6 +71,8 @@
 
 <script>
 
+import { createCardAPI } from '@/api/car'
+
 export default {
   data() {
     return {
@@ -81,12 +83,15 @@ export default {
         carNumber: '', // 车牌号码
         carBrand: '' // 车辆品牌
       },
+      // 服务器会检测手机号和车辆号码的合法性, 必须输入合法值
+      // 车辆号码 类似 京A88812
       carInfoRules: {
         personName: [
           { required: true, message: '请输入车主姓名', trigger: 'blur' }
         ],
         phoneNumber: [
-          { required: true, message: '请输入联系方式', trigger: 'blur' }
+          { required: true, message: '请输入联系方式', trigger: 'blur' },
+          { min: 11, max: 11, message: '请输入合法手机号', trigger: 'blur' }
         ],
         carNumber: [
           { required: true, message: '请输入车辆号码', trigger: 'blur' }
@@ -98,7 +103,7 @@ export default {
       // 缴费信息表单
       feeForm: {
         payTime: '', // 支付时间
-        paymentAmount: null, // 支付金额
+        paymentAmount: '', // 支付金额
         paymentMethod: '' // 支付方式
       },
       // 缴费规则
@@ -166,14 +171,37 @@ export default {
                     cardEndDate: this.feeForm.payTime[1]
                   }
                   delete payload.payTime
-                  // createCardAPI(payload)
+                  createCardAPI(payload).then(
+                    () => {
+                      this.$message({
+                        type: 'success',
+                        message: '添加成功'
+                      })
+                      this.$router.back()
+                    }
+                  )
                   // console.log(payload)
                   // await createCardAPI(payload)
-                  this.$message({
-                    type: 'success',
-                    message: '添加成功'
-                  })
-                  this.$router.back()
+                  // createCardAPI(
+                  //   {
+                  //     personName: this.carInfoForm.personName,
+                  //     phoneNumber: this.carInfoForm.phoneNumber,
+                  //     carNumber: this.carInfoForm.carNumber,
+                  //     carBrand: this.carInfoForm.carBrand,
+                  //     cardStartDate: this.feeForm.payTime[0],
+                  //     cardEndDate: this.feeForm.payTime[1],
+                  //     paymentAmount: this.feeForm.paymentAmount,
+                  //     paymentMethod: this.feeForm.paymentMethod
+                  //   }
+                  // ).then(
+                  //   () => {
+                  //     this.$message({
+                  //       type: 'success',
+                  //       message: '添加成功'
+                  //     })
+                  //     this.$router.back()
+                  //   }
+                  // )
                 } else {
                   this.$message.error('请填写完整的缴费信息')
                 }
