@@ -55,8 +55,8 @@
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
             <el-button size="mini" type="text">续费</el-button>
-            <el-button size="mini" type="text">查看</el-button>
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="jumpToDetailCard(scope.row.id, 'detail')">查看</el-button>
+            <el-button size="mini" type="text" @click="jumpToUpdateCard(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="deleteCard(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -138,6 +138,7 @@ export default {
       total: 0,
       value: false,
       refreshLoadingFlag: false,
+      type: '',
       pageSizes: [2, 3, 5, 10, 15, 20, 30],
       params: {
         page: 1,
@@ -170,18 +171,20 @@ export default {
   },
   // created() {}
   mounted() {
-    // console.log('页面加载好了，可以发送请求宣传页面结构了')
-    // getMonthCardListAPI(
-    //   this.params
-    // ).then(
-    //   // => 箭头函数 没有 this 的指向问题
-    //   res => {
-    //     // console.log(res.data, 999)
-    //     // console.log(this.list)
-    //     this.list = res.data.rows
-    //     this.total = res.data.total
-    //   }
-    // )
+    /*
+      console.log('页面加载好了，可以发送请求宣传页面结构了')
+      getMonthCardListAPI(
+        this.params
+      ).then(
+        // => 箭头函数 没有 this 的指向问题
+        res => {
+          // console.log(res.data, 999)
+          // console.log(this.list)
+          this.list = res.data.rows
+          this.total = res.data.total
+        }
+      )
+    */
     this.getList()
   },
   methods: {
@@ -302,6 +305,12 @@ export default {
         },
         1000
       )
+    },
+    jumpToUpdateCard(id) {
+      this.$router.push('/addCard?id=' + id)
+    },
+    jumpToDetailCard(id) {
+      this.$router.push('/addCard?id=' + id)
     }
   }
 }

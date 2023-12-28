@@ -67,7 +67,7 @@ export function deleteCardsAPI(idList) {
 
 export function getCardDetailAPI(id) {
   return request({
-    url: `parking/card/${id}`,
+    url: `parking/card/detail/${id}`,
     method: 'GET'
   })
 }

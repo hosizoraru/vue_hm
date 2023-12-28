@@ -9,16 +9,16 @@
         <div class="form">
           <el-form ref="carInfoForm" :model="carInfoForm" :rules="carInfoRules" label-width="100px">
             <el-form-item label="车主姓名" prop="personName">
-              <el-input v-model="carInfoForm.personName" clearable />
+              <el-input v-model="carInfoForm.personName" :disabled="inputDisable" clearable />
             </el-form-item>
             <el-form-item label="联系方式" prop="phoneNumber">
-              <el-input v-model="carInfoForm.phoneNumber" clearable />
+              <el-input v-model="carInfoForm.phoneNumber" :disabled="inputDisable" clearable />
             </el-form-item>
             <el-form-item label="车辆号码" prop="carNumber">
-              <el-input v-model="carInfoForm.carNumber" clearable />
+              <el-input v-model="carInfoForm.carNumber" :disabled="inputDisable" clearable />
             </el-form-item>
             <el-form-item label="车辆品牌" prop="carBrand">
-              <el-input v-model="carInfoForm.carBrand" clearable />
+              <el-input v-model="carInfoForm.carBrand" :disabled="inputDisable" clearable />
             </el-form-item>
           </el-form>
         </div>
@@ -31,6 +31,7 @@
               <el-date-picker
                 v-model="feeForm.payTime"
                 :picker-options="pickerOptions"
+                :disabled="inputDisable"
                 align="right"
                 type="daterange"
                 end-placeholder="结束日期"
@@ -40,10 +41,10 @@
               />
             </el-form-item>
             <el-form-item label="支付金额" prop="paymentAmount">
-              <el-input v-model="feeForm.paymentAmount" />
+              <el-input v-model="feeForm.paymentAmount" :disabled="inputDisable" />
             </el-form-item>
             <el-form-item label="支付方式" prop="paymentMethod">
-              <el-select v-model="feeForm.paymentMethod">
+              <el-select v-model="feeForm.paymentMethod" :disabled="inputDisable">
                 <el-option
                   v-for="item in payMethodList"
                   :key="item.id"
@@ -71,7 +72,7 @@
 
 <script>
 
-import { createCardAPI } from '@/api/car'
+import { createCardAPI, getCardDetailAPI } from '@/api/car'
 
 export default {
   data() {
@@ -152,7 +153,42 @@ export default {
             picker.$emit('pick', [start, end])
           }
         }]
-      }
+      },
+      inputDisable: false
+    }
+  },
+  mounted() {
+    /*
+        如何获取地址栏路径中的 id 参数
+        vue router 中的一个属性 $route
+        $route.query.id
+     */
+    const id = this.$route.query.id
+    // const type = this.$route.query.type
+    // console.log(this.$route.query)
+    // console.log(id)
+    if (id) {
+      getCardDetailAPI(id).then(
+        res => {
+          const data = res.data
+          // console.log(data)
+          // ... 展开运算符
+          this.carInfoForm = {
+            ...data
+            // personName: data.personName,
+            // phoneNumber: data.phoneNumber,
+            // carNumber: data.carNumber,
+            // carBrand: data.carBrand
+          }
+          this.feeForm = {
+            ...data,
+            payTime: [data.cardStartDate, data.cardEndDate]
+            // paymentAmount: data.paymentAmount,
+            // paymentMethod: data.paymentMethod
+          }
+          // this.inputDisable = true
+        }
+      )
     }
   },
   methods: {
@@ -171,6 +207,7 @@ export default {
                     cardEndDate: this.feeForm.payTime[1]
                   }
                   delete payload.payTime
+                  // if (this.id) { }
                   createCardAPI(payload).then(
                     () => {
                       this.$message({
