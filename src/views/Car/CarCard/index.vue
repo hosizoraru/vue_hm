@@ -4,9 +4,9 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <span class="search-label">车牌号码：</span>
-      <el-input v-model="params.carNumber" class="search-main" clearable placeholder="请输入内容" />
+      <el-input v-model="params.carNumber" class="search-main" clearable placeholder="请输入内容" @clear="getList" />
       <span class="search-label">车主姓名：</span>
-      <el-input v-model="params.personName" class="search-main" clearable placeholder="请输入内容" />
+      <el-input v-model="params.personName" class="search-main" clearable placeholder="请输入内容" @clear="getList" />
       <span class="search-label">状态：</span>
       <el-select v-model="params.cardStatus">
         <el-option
@@ -15,17 +15,22 @@
           :label="status.name"
           :value="status.id"
         />
+      <!--<el-option label="全部" :value="null" />-->
+      <!--<el-option label="已过期" :value="0" />-->
+      <!-- 01 这些即使不加 : 也会被自动转换为 string -->
+      <!-- 但是一些需要 array/boolean/... 的地方不主动加 : 传字符串 会因为自动转为 string 而报错 -->
       </el-select>
-      <el-button class="search-btn" type="primary" @click="doSearch">查询</el-button>
+      <el-button :plain="true" class="search-btn" icon="el-icon-search" type="primary" @click="doSearch">查询</el-button>
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
       <el-button-group>
-        <el-button type="primary" @click="addCard">添加月卡<i class="el-icon-upload el-icon--right" /></el-button>
-        <el-button type="danger" icon="el-icon-delete">批量删除</el-button>
+        <el-button type="primary" :round="true" @click="addCard">添加月卡<i class="el-icon-upload el-icon--right" /></el-button>
+        <el-button type="danger" :round="true" icon="el-icon-delete" @click="deleteCards">批量删除</el-button>
       </el-button-group>
       <el-button-group>
-        <el-button type="primary" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading">刷新页面</el-button>
+        <el-button type="warning" :circle="true" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading" />
+        <el-button type="success" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading">刷新页面</el-button>
       </el-button-group>
     </div>
     <!--
@@ -33,8 +38,14 @@
         elementUI 里的表格组件
     -->
     <div class="table">
-      <!--需要把数据 data 传输给他-->
-      <el-table :data="list" style="width: 100%">
+      <!--
+          需要把数据 data 传输给他
+          需要当前数据的 id scope 是一个对象
+          scope.row 当前行的数据
+          scope.row.id 当前行的 id
+      -->
+      <el-table :data="list" style="width: 100%" @select-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" />
         <el-table-column label="序号" type="index" />
         <el-table-column label="车主名称" prop="personName" />
         <el-table-column label="联系方式" prop="phoneNumber" />
@@ -42,11 +53,6 @@
         <el-table-column label="车辆品牌" prop="carBrand" />
         <el-table-column label="剩余有效天数" prop="totalEffectiveDate" />
         <el-table-column fixed="right" label="操作" width="180">
-          <!--
-            需要当前数据的 id scope 是一个对象
-            scope.row 当前行的数据
-            scope.row.id 当前行的 id
-          -->
           <template #default="scope">
             <el-button size="mini" type="text">续费</el-button>
             <el-button size="mini" type="text">查看</el-button>
@@ -76,7 +82,7 @@
         :hide-on-single-page="value"
         :current-page="params.page"
         :page-size="params.pageSize"
-        :page-sizes="[2, 3, 5, 10, 15, 20, 30]"
+        :page-sizes="pageSizes"
         :total="total"
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
@@ -120,7 +126,7 @@
   除了登陆接口 后端可以不认识你
   后端接口需要知道你是谁 需要 token
 */
-import { deleteCardAPI, getMonthCardListAPI } from '@/api/car'
+import { deleteCardAPI, deleteCardsAPI, getMonthCardListAPI } from '@/api/car'
 import item from '@/layout/components/Sidebar/Item.vue'
 
 export default {
@@ -132,13 +138,13 @@ export default {
       total: 0,
       value: false,
       refreshLoadingFlag: false,
+      pageSizes: [2, 3, 5, 10, 15, 20, 30],
       params: {
         page: 1,
         pageSize: 10,
-        carNumber: '',
-        personName: '',
+        carNumber: null,
+        personName: null,
         cardStatus: null
-        // pageSizes: [2, 3, 5, 10, 15, 20, 30]
       },
       cardStatusList: [
         {
@@ -153,7 +159,8 @@ export default {
           id: 1,
           name: '已经过期'
         }
-      ]
+      ],
+      selectCardList: []
     }
   },
   computed: {
@@ -197,8 +204,31 @@ export default {
       this.params.page = page
       this.getList()
     },
+    handleSelectionChange(rowList) {
+      console.log(rowList)
+      this.selectCardList = rowList
+    },
     addCard() {
       this.$router.push('/addCard')
+      // this.$confirm('检测到未保存的内容，是否在离开页面前保存修改？', '确认信息', {
+      //   distinguishCancelAndClose: true,
+      //   confirmButtonText: '保存',
+      //   cancelButtonText: '放弃修改'
+      // })
+      //   .then(() => {
+      //     this.$message({
+      //       type: 'info',
+      //       message: '保存修改'
+      //     })
+      //   })
+      //   .catch(action => {
+      //     this.$message({
+      //       type: 'info',
+      //       message: action === 'cancel'
+      //         ? '放弃保存并离开页面'
+      //         : '停留在当前页面'
+      //     })
+      //   })
     },
     doSearch() {
       this.params.page = 1
@@ -208,7 +238,8 @@ export default {
       this.$confirm('此操作将永久删除该月卡信息, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
+        center: true
       }).then(
         async() => {
           deleteCardAPI(id).then(
@@ -234,6 +265,34 @@ export default {
         }
       )
     },
+    deleteCards() {
+      const selectedCount = this.selectCardList.length
+      this.$confirm('', {
+        message: `已选择 ${selectedCount} 个月卡`,
+        title: '此操作将永久删除选择的月卡, 是否继续?',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(
+        async() => {
+          // 处理id
+          await deleteCardsAPI(this.selectCardList.map(item => item.id))
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.getList()
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
+      )
+    },
     async refreshLoading() {
       this.refreshLoadingFlag = true
       await this.getList()
@@ -243,14 +302,6 @@ export default {
         },
         1000
       )
-      // try {
-      //   this.refreshLoadingFlag = true
-      //   await this.getList()
-      //   this.refreshLoadingFlag = false
-      // } catch (error) {
-      //   this.refreshLoadingFlag = false
-      //   this.$message.error(error.response.data.msg)
-      // }
     }
   }
 }

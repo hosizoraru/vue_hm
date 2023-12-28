@@ -9,16 +9,16 @@
         <div class="form">
           <el-form ref="carInfoForm" :model="carInfoForm" :rules="carInfoRules" label-width="100px">
             <el-form-item label="车主姓名" prop="personName">
-              <el-input v-model="carInfoForm.personName" />
+              <el-input v-model="carInfoForm.personName" clearable />
             </el-form-item>
             <el-form-item label="联系方式" prop="phoneNumber">
-              <el-input v-model="carInfoForm.phoneNumber" />
+              <el-input v-model="carInfoForm.phoneNumber" clearable />
             </el-form-item>
             <el-form-item label="车辆号码" prop="carNumber">
-              <el-input v-model="carInfoForm.carNumber" />
+              <el-input v-model="carInfoForm.carNumber" clearable />
             </el-form-item>
             <el-form-item label="车辆品牌" prop="carBrand">
-              <el-input v-model="carInfoForm.carBrand" />
+              <el-input v-model="carInfoForm.carBrand" clearable />
             </el-form-item>
           </el-form>
         </div>

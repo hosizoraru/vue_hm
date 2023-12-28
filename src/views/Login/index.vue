@@ -17,14 +17,14 @@
           label="账号"
           prop="username"
         >
-          <el-input v-model="form.username" @change="checkRememberUsername"/>
+          <el-input v-model="form.username" clearable @change="checkRememberUsername" />
         </el-form-item>
 
         <el-form-item
           label="密码"
           prop="password"
         >
-          <el-input v-model="form.password" type="password" @change="checkRememberPassword"/>
+          <el-input v-model="form.password" type="password" clearable @change="checkRememberPassword" />
         </el-form-item>
 
         <!--        <el-form-item-->
