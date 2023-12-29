@@ -63,8 +63,8 @@
     </main>
     <footer class="add-footer">
       <div class="btn-container">
-        <el-button @click="clearAdd">重置</el-button>
-        <el-button type="primary" @click="confirmAdd">确定</el-button>
+        <el-button :disabled="inputDisable" @click="clearAdd">重置</el-button>
+        <el-button type="primary" :disabled="inputDisable" @click="confirmAdd">确定</el-button>
       </div>
     </footer>
   </div>
@@ -190,7 +190,8 @@ export default {
           }
           // console.dir(this.carInfoForm)
           // console.dir(this.feeForm)
-          // this.inputDisable = true
+          // console.log(this.$store.state.user.inputStatus)
+          this.inputDisable = this.$store.state.user.inputStatus === true
         }
       )
     }
