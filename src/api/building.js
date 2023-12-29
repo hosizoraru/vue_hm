@@ -27,3 +27,11 @@ export function deleteBuildingAPI(id) {
     method: 'DELETE'
   })
 }
+
+export function updateBuildingAPI(data) {
+  return request({
+    url: 'park/building',
+    method: 'PUT',
+    data
+  })
+}
