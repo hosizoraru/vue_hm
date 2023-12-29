@@ -48,11 +48,13 @@
           max-height 最大高度
           @row-class-name
           sortable
+          :default-sort="{ prop: 'xx', order: 'descending' }" 默认排序
       -->
       <el-table
         :data="list"
         style="width: 100%"
-        :default-sort="{ prop: 'index', order: 'index' }"
+        stripe
+        :default-sort="{ prop: 'totalEffectiveDate', order: 'descending' }"
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="45" />
@@ -65,7 +67,7 @@
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
             <el-button size="mini" type="text">续费</el-button>
-            <el-button size="mini" type="text" @click="jumpToDetailCard(scope.row.id, 'detail')">查看</el-button>
+            <el-button size="mini" type="text" @click="jumpToDetailCard(scope.row.id)">查看</el-button>
             <el-button size="mini" type="text" @click="jumpToUpdateCard(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="deleteCard(scope.row.id)">删除</el-button>
           </template>
@@ -99,33 +101,6 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    <!-- 添加楼宇 -->
-    <el-dialog
-      title="添加楼宇"
-      width="580px"
-    >
-      <!-- 表单接口 -->
-      <div class="form-container">
-        <!-- <el-form ref="addForm" :model="addForm" :rules="addFormRules">
-          <el-form-item label="楼宇名称" prop="name">
-            <el-input v-model="addForm.name" />
-          </el-form-item>
-          <el-form-item label="楼宇层数" prop="floors">
-            <el-input v-model="addForm.floors" />
-          </el-form-item>
-          <el-form-item label="在管面积" prop="area">
-            <el-input v-model="addForm.area" />
-          </el-form-item>
-          <el-form-item label="物业费" prop="propertyFeePrice">
-            <el-input v-model="addForm.propertyFeePrice" />
-          </el-form-item>
-        </el-form> -->
-      </div>
-      <template #footer>
-        <el-button size="mini">取 消</el-button>
-        <el-button size="mini" type="primary">确 定</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -335,9 +310,11 @@ export default {
     },
     jumpToUpdateCard(id) {
       this.$router.push('/addCard?id=' + id)
+      this.$store.commit('user/setInputStatus', false)
     },
     jumpToDetailCard(id) {
       this.$router.push('/addCard?id=' + id)
+      this.$store.commit('user/setInputStatus', true)
     },
     formatter(row, column) {
       return row.totalEffectiveDate
