@@ -59,10 +59,10 @@
       >
         <el-table-column type="selection" width="45" />
         <el-table-column label="序号" type="index" />
-        <el-table-column label="车主名称" prop="personName" />
-        <el-table-column label="联系方式" prop="phoneNumber" />
-        <el-table-column label="车牌号码" prop="carNumber" />
-        <el-table-column label="车辆品牌" prop="carBrand" />
+        <el-table-column label="车主名称" prop="personName" sortable />
+        <el-table-column label="联系方式" prop="phoneNumber" sortable />
+        <el-table-column label="车牌号码" prop="carNumber" sortable />
+        <el-table-column label="车辆品牌" prop="carBrand" sortable />
         <el-table-column label="剩余有效天数" prop="totalEffectiveDate" sortable :formatter="formatter" />
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">

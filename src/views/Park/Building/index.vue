@@ -40,25 +40,30 @@
           prop="name"
           label="楼宇名称"
           width="180"
+          sortable
         />
         <el-table-column
           prop="floors"
           label="层数"
+          sortable
         />
         <el-table-column
           prop="area"
           label="在管面积(m²)"
           width="120"
+          sortable
         />
         <el-table-column
           prop="propertyFeePrice"
           label="物业费(元/m²)"
           width="120"
+          sortable
         />
         <el-table-column
           prop="status"
           label="状态"
           :formatter="statusFormatter"
+          sortable
         />
         <el-table-column
           label="操作"
