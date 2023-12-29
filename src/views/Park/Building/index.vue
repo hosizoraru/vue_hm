@@ -72,6 +72,8 @@
             <el-button
               size="mini"
               type="text"
+              @click="updateBuilding(scope.row)"
+              @close="clearForm"
             >编辑</el-button>
             <el-button
               size="mini"
@@ -122,6 +124,7 @@
           </el-form>
         </div>
         <template #footer>
+          <el-button size="medium" type="warning" @click="clearForm">重 置</el-button>
           <el-button size="medium" type="danger" @click="handleClose">取 消</el-button>
           <el-button size="medium" type="primary" @click="confirmAdd">确 定</el-button>
         </template>
@@ -146,7 +149,7 @@
 </template>
 
 <script>
-import { createBuildingAPI, deleteBuildingAPI, getBuildingListAPI } from '@/api/building'
+import { createBuildingAPI, deleteBuildingAPI, getBuildingListAPI, updateBuildingAPI } from '@/api/building'
 import { right } from 'core-js/internals/array-reduce'
 
 export default {
@@ -240,9 +243,9 @@ export default {
         .then(
           () => {
             this.dialogVisible = false
+            this.clearForm()
           }
-        )
-        .catch(
+        ).catch(
           () => {
             this.$message({
               type: 'info',
@@ -255,21 +258,39 @@ export default {
       this.$refs.addForm.validate(
         valid => {
           if (valid) {
-            createBuildingAPI(this.addForm).then(
-              () => {
-                this.$message({
-                  type: 'success',
-                  message: '添加成功'
-                })
-                this.$refs.addForm.resetFields()
-                this.dialogVisible = false
-                this.getList()
-              }
-            ).catch(
-              error => {
-                this.$message.error(error.response.data.msg)
-              }
-            )
+            if (this.addForm.id) {
+              updateBuildingAPI(this.addForm).then(
+                () => {
+                  this.$message({
+                    type: 'success',
+                    message: '更新成功'
+                  })
+                  this.clearForm()
+                  this.dialogVisible = false
+                  this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            } else {
+              createBuildingAPI(this.addForm).then(
+                () => {
+                  this.$message({
+                    type: 'success',
+                    message: '添加成功'
+                  })
+                  this.clearForm()
+                  this.dialogVisible = false
+                  this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            }
           } else {
             this.$message.error('请填写完整的楼宇信息')
           }
@@ -290,6 +311,10 @@ export default {
                 type: 'success',
                 message: '删除成功'
               })
+              // 需要删本页最后一条数据后 回到上一页
+              if (this.tableData.length === 1) {
+                this.params.page--
+              }
               this.getList()
             }
           ).catch(
@@ -332,6 +357,27 @@ export default {
     handleSelectionChange(val) {
       this.selectBuildingList = val
       // console.log(val.map(item => item.id).join(','))
+    },
+    updateBuilding(row) {
+      // console.dir(row)
+      // const id = row.id
+      // delete row.id
+      // delete row.status
+      // console.dir(row)
+      // this.addForm = {
+      //   ...row
+      // }
+      this.dialogVisible = true
+      this.addForm = {
+        name: row.name,
+        floors: row.floors,
+        area: row.area,
+        propertyFeePrice: row.propertyFeePrice,
+        id: row.id
+      }
+    },
+    clearForm() {
+      this.$refs.addForm.resetFields()
     }
   }
 }
