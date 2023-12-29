@@ -43,15 +43,25 @@
           需要当前数据的 id scope 是一个对象
           scope.row 当前行的数据
           scope.row.id 当前行的 id
+          stripe 斑马纹
+          border 边框
+          max-height 最大高度
+          @row-class-name
+          sortable
       -->
-      <el-table :data="list" style="width: 100%" @select-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" />
+      <el-table
+        :data="list"
+        style="width: 100%"
+        :default-sort="{ prop: 'index', order: 'index' }"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="45" />
         <el-table-column label="序号" type="index" />
         <el-table-column label="车主名称" prop="personName" />
         <el-table-column label="联系方式" prop="phoneNumber" />
         <el-table-column label="车牌号码" prop="carNumber" />
         <el-table-column label="车辆品牌" prop="carBrand" />
-        <el-table-column label="剩余有效天数" prop="totalEffectiveDate" />
+        <el-table-column label="剩余有效天数" prop="totalEffectiveDate" sortable :formatter="formatter" />
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
             <el-button size="mini" type="text">续费</el-button>
@@ -126,7 +136,7 @@
   除了登陆接口 后端可以不认识你
   后端接口需要知道你是谁 需要 token
 */
-import { deleteCardAPI, deleteCardsAPI, getMonthCardListAPI } from '@/api/car'
+import { deleteCardAPI, getMonthCardListAPI } from '@/api/car'
 import item from '@/layout/components/Sidebar/Item.vue'
 
 export default {
@@ -196,20 +206,35 @@ export default {
         }
       )
     },
+    handleSelectionChange(val) {
+      /*
+        选中项变化时触发
+        val 是当前选中的项的数组
+        let 定义的是变量 const 定义的是常量
+        console.log(val.map(item => item.id))
+        console.log(val)
+        console.log(val.length)
+        val.map(item => item.id).join(',')
+        let str = ''
+        val.forEach(item => {
+          str += item.id + ','
+        })
+        str = str.slice(0, -1)
+        this.selectCardList = str
+        console.dir(str)
+       */
+      this.selectCardList = val
+    },
     handleSizeChange(pageSize) {
       // console.log('每页显示条数:', pageSize)
       this.params.pageSize = pageSize
-      // this.params.page = 1 // 现在已经没必要
+      // this.params.page = 1 // 现在已经没必要 但也不是完全没必要
       this.getList()
     },
     handleCurrentChange(page) {
       // console.log('当前页:', page)
       this.params.page = page
       this.getList()
-    },
-    handleSelectionChange(rowList) {
-      console.log(rowList)
-      this.selectCardList = rowList
     },
     addCard() {
       this.$router.push('/addCard')
@@ -269,9 +294,8 @@ export default {
       )
     },
     deleteCards() {
-      const selectedCount = this.selectCardList.length
       this.$confirm('', {
-        message: `已选择 ${selectedCount} 个月卡`,
+        message: `已选择 ${this.selectCardList.length} 个月卡`,
         title: '此操作将永久删除选择的月卡, 是否继续?',
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -280,7 +304,10 @@ export default {
       }).then(
         async() => {
           // 处理id
-          await deleteCardsAPI(this.selectCardList.map(item => item.id))
+          // await deleteCardAPI(this.selectCardList)
+          await deleteCardAPI(
+            this.selectCardList.map(item => item.id).join(',')
+          )
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -311,6 +338,9 @@ export default {
     },
     jumpToDetailCard(id) {
       this.$router.push('/addCard?id=' + id)
+    },
+    formatter(row, column) {
+      return row.totalEffectiveDate
     }
   }
 }

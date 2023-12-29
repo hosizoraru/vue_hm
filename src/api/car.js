@@ -58,13 +58,6 @@ export function deleteCardAPI(id) {
   })
 }
 
-export function deleteCardsAPI(idList) {
-  return request({
-    url: `/parking/card/${idList.join(',')}`,
-    method: 'DELETE'
-  })
-}
-
 export function getCardDetailAPI(id) {
   return request({
     url: `parking/card/detail/${id}`,
@@ -72,10 +65,10 @@ export function getCardDetailAPI(id) {
   })
 }
 
-export function updateCardAPI(data) {
+export function updateCardAPI(obj) {
   return request({
     url: '/parking/card/edit',
     method: 'PUT',
-    data
+    data: obj
   })
 }

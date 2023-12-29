@@ -72,7 +72,7 @@
 
 <script>
 
-import { createCardAPI, getCardDetailAPI } from '@/api/car'
+import { createCardAPI, getCardDetailAPI, updateCardAPI } from '@/api/car'
 
 export default {
   data() {
@@ -174,18 +174,22 @@ export default {
           // console.log(data)
           // ... 展开运算符
           this.carInfoForm = {
-            ...data
-            // personName: data.personName,
-            // phoneNumber: data.phoneNumber,
-            // carNumber: data.carNumber,
-            // carBrand: data.carBrand
+            // ...data
+            personName: data.personName,
+            phoneNumber: data.phoneNumber,
+            carNumber: data.carNumber,
+            carBrand: data.carBrand
           }
           this.feeForm = {
-            ...data,
-            payTime: [data.cardStartDate, data.cardEndDate]
-            // paymentAmount: data.paymentAmount,
-            // paymentMethod: data.paymentMethod
+            // ...data,
+            payTime: [data.cardStartDate, data.cardEndDate],
+            carInfoId: data.carInfoId,
+            rechargeId: data.rechargeId,
+            paymentAmount: data.paymentAmount,
+            paymentMethod: data.paymentMethod
           }
+          // console.dir(this.carInfoForm)
+          // console.dir(this.feeForm)
           // this.inputDisable = true
         }
       )
@@ -207,20 +211,38 @@ export default {
                     cardEndDate: this.feeForm.payTime[1]
                   }
                   delete payload.payTime
-                  // if (this.id) { }
-                  createCardAPI(payload).then(
-                    () => {
-                      this.$message({
-                        type: 'success',
-                        message: '添加成功'
-                      })
-                      this.$router.back()
-                    }
-                  ).catch(
-                    error => {
-                      this.$message.error(error.response.data.msg)
-                    }
-                  )
+                  delete payload.cardStatus
+                  if (this.$route.query.id) {
+                    updateCardAPI({
+                      ...payload
+                    }).then(
+                      () => {
+                        this.$message({
+                          type: 'success',
+                          message: '修改成功'
+                        })
+                        this.$router.back()
+                      }
+                    ).catch(
+                      error => {
+                        this.$message.error(error.response.data.msg)
+                      }
+                    )
+                  } else {
+                    createCardAPI(payload).then(
+                      () => {
+                        this.$message({
+                          type: 'success',
+                          message: '添加成功'
+                        })
+                        this.$router.back()
+                      }
+                    ).catch(
+                      error => {
+                        this.$message.error(error.response.data.msg)
+                      }
+                    )
+                  }
                   // console.log(payload)
                   // await createCardAPI(payload)
                   // createCardAPI(
