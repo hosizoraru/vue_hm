@@ -29,8 +29,8 @@
         <el-button type="danger" :round="true" icon="el-icon-delete" @click="deleteCards">批量删除</el-button>
       </el-button-group>
       <el-button-group>
-        <el-button type="warning" :circle="true" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading" />
-        <el-button type="success" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading">刷新页面</el-button>
+        <el-button type="warning" :circle="true" icon="el-icon-refresh" :loading="loadingFlag" @click="refreshLoading" />
+        <el-button type="success" icon="el-icon-refresh" :loading="loadingFlag" @click="refreshLoading">刷新页面</el-button>
       </el-button-group>
     </div>
     <div class="proportion-container">
@@ -63,6 +63,10 @@
           :default-sort="{ prop: 'xx', order: 'descending' }" 默认排序
       -->
       <el-table
+        v-loading="loadingFlag"
+        element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.3)"
         :data="list"
         style="width: 100%"
         stripe
@@ -134,7 +138,7 @@ export default {
       list: [],
       total: 0,
       value: false,
-      refreshLoadingFlag: false,
+      loadingFlag: true,
       type: '',
       proportionList: {
         cardCount: 0,
@@ -187,6 +191,7 @@ export default {
         }
       )
     */
+    this.loadingFlag = true
     this.getList()
     proportionCardAPI().then(
       res => {
@@ -201,6 +206,12 @@ export default {
         res => {
           this.list = res.data.rows
           this.total = res.data.total
+          this.loadingFlag = false
+        }
+      ).catch(
+        error => {
+          this.$message.error(error.response.data.msg)
+          this.loadingFlag = true
         }
       )
     },
@@ -322,14 +333,8 @@ export default {
       )
     },
     async refreshLoading() {
-      this.refreshLoadingFlag = true
+      this.loadingFlag = true
       await this.getList()
-      setTimeout(
-        () => {
-          this.refreshLoadingFlag = false
-        },
-        1000
-      )
     },
     jumpToUpdateCard(id) {
       this.$router.push('/addCard?id=' + id)
