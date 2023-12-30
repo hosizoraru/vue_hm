@@ -72,14 +72,14 @@
     <footer class="add-footer">
       <div class="btn-container">
         <el-button type="danger" @click="clearAdd">重置</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="confirmAdd">确定</el-button>
       </div>
     </footer>
   </div>
 </template>
 
 <script>
-import { getIndustryListAPI, uploadAPI } from '@/api/enterprise'
+import { createEnterpriseAPI, getIndustryListAPI, uploadAPI } from '@/api/enterprise'
 
 export default {
   data() {
@@ -160,6 +160,22 @@ export default {
         this.$message.error('上传图片大小不能超过 5 MB! ')
       }
       return sizeOK
+    },
+    confirmAdd() {
+      const newForm = {
+        ...this.addForm,
+        ...this.feeForm
+      }
+      createEnterpriseAPI(newForm).then(
+        () => {
+          this.$message.success('添加成功')
+          this.$router.back()
+        }
+      ).catch(
+        error => {
+          this.$message.error(error.response.data.msg)
+        }
+      )
     }
   }
 }

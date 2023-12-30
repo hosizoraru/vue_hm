@@ -72,3 +72,10 @@ export function updateCardAPI(obj) {
     data: obj
   })
 }
+
+export function getCardRechargeAPI(id) {
+  return request({
+    url: `/parking/card/${id}`,
+    method: 'GET'
+  })
+}
