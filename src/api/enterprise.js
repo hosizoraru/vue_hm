@@ -48,6 +48,8 @@ export function getIndustryListAPI() {
 /**
  * 上传合同
  * @returns
+ * type 上传类型
+ * 1、企业营业执照businessLicense 2、租赁合同附件contract
  */
 export function uploadAPI(data) {
   return request({

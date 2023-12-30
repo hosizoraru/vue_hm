@@ -35,12 +35,21 @@
               </el-select>
             </el-form-item>
             <el-form-item label="营业执照" prop="name">
+              <!--
+                  上传组件
+                  action 上传的地址
+                  :http-request 上传的方法 会覆盖默认的上传方法
+              -->
               <el-upload
                 action="#"
                 :http-request="uploadRequest"
+                :on-preview="handlePreview"
+                :before-upload="beforeUpload"
+                list-type="picture"
+                multiple
               >
-                <el-button icon="el-icon-upload" size="small" type="primary" plain>点击上传</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                <el-button icon="el-icon-upload" size="medium" type="primary" plain>点击上传</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传 jpg/png 文件，且不超过 5 MB</div>
               </el-upload>
             </el-form-item>
           </el-form>
@@ -131,6 +140,8 @@ export default {
 
       // 处理formData类型参数
       const formData = new FormData()
+      // formData.get('file')
+      // 企业营业执照 businessLicense 租赁合同附件 contract
       formData.append('file', file)
       formData.append('type', 'businessLicense')
       const res = await uploadAPI(formData)
@@ -138,6 +149,17 @@ export default {
       // 赋值表单数据
       this.addForm.businessLicenseId = res.data.id
       this.addForm.businessLicenseUrl = res.data.url
+    },
+    handlePreview(file) {
+      console.log(file)
+    },
+    beforeUpload(file) {
+      // console.log(file)
+      const sizeOK = file.size / 1024 / 1024 < 5
+      if (!sizeOK) {
+        this.$message.error('上传图片大小不能超过 5 MB! ')
+      }
+      return sizeOK
     }
   }
 }
