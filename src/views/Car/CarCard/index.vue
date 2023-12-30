@@ -33,6 +33,18 @@
         <el-button type="success" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading">刷新页面</el-button>
       </el-button-group>
     </div>
+    <div class="proportion-container">
+      <el-alert
+        :title="'本园区共计 ' + proportionList.spaceNumber +
+          ' 个车位，月卡用户 ' + proportionList.cardCount +
+          ' 人，车位占有率 ' + proportionList.proportion"
+        :description="'月卡用户 ' + proportionList.cardCount + ' 人，'
+          + '车位占有率 ' + proportionList.proportion"
+        type="success"
+        :closable="false"
+        show-icon
+      />
+    </div>
     <!--
         表格区域
         elementUI 里的表格组件
@@ -111,7 +123,7 @@
   除了登陆接口 后端可以不认识你
   后端接口需要知道你是谁 需要 token
 */
-import { deleteCardAPI, getMonthCardListAPI } from '@/api/car'
+import { deleteCardAPI, getMonthCardListAPI, proportionCardAPI } from '@/api/car'
 import item from '@/layout/components/Sidebar/Item.vue'
 
 export default {
@@ -124,6 +136,11 @@ export default {
       value: false,
       refreshLoadingFlag: false,
       type: '',
+      proportionList: {
+        cardCount: 0,
+        spaceNumber: 0,
+        proportion: ''
+      },
       pageSizes: [2, 3, 5, 10, 15, 20, 30],
       params: {
         page: 1,
@@ -171,6 +188,12 @@ export default {
       )
     */
     this.getList()
+    proportionCardAPI().then(
+      res => {
+        this.proportionList = res.data
+        // console.log(this.proportionList)
+      }
+    )
   },
   methods: {
     getList() {
@@ -330,6 +353,18 @@ export default {
 .card-container {
   padding: 20px;
   background-color: #fff;
+}
+
+.proportion-container {
+  width: 430px;
+  margin: 30px 0 0 0;
+  color: blue;
+
+  .like {
+    cursor: pointer;
+    font-size: 25px;
+    display: inline-block;
+  }
 }
 
 .search-container {

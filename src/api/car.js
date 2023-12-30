@@ -87,3 +87,10 @@ export function rechargeCardAPI(data) {
     data
   })
 }
+
+export function proportionCardAPI() {
+  return request({
+    url: 'parking/card/proportion',
+    method: 'GET'
+  })
+}
