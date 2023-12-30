@@ -12,6 +12,13 @@ export function getEnterpriseListAPI(params) {
   })
 }
 
+export function getEnterpriseDetailAPI(id) {
+  return request({
+    url: `park/enterprise/${id}`,
+    method: 'GET'
+  })
+}
+
 export function createEnterpriseAPI(data) {
   return request({
     url: 'park/enterprise',

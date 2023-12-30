@@ -4,7 +4,7 @@
       <div class="left">
         <span class="arrow" @click="$router.back()"><i class="el-icon-arrow-left" />返回</span>
         <span> | </span>
-        <span>添加企业</span>
+        <span>{{ $route.query.id ? '编辑企业' : '添加企业' }}</span>
       </div>
       <div class="right">
         黑马程序员
@@ -79,7 +79,13 @@
 </template>
 
 <script>
-import { createEnterpriseAPI, getIndustryListAPI, uploadAPI } from '@/api/enterprise'
+import {
+  createEnterpriseAPI,
+  getEnterpriseDetailAPI,
+  getIndustryListAPI,
+  updateEnterpriseAPI,
+  uploadAPI
+} from '@/api/enterprise'
 
 export default {
   data() {
@@ -126,6 +132,30 @@ export default {
   },
   mounted() {
     this.getIndustryList()
+    const id = this.$route.query.id
+    if (id) {
+      getEnterpriseDetailAPI(id).then(
+        res => {
+          const data = res.data
+          this.addForm = {
+            name: data.name, // 企业名称
+            legalPerson: data.legalPerson, // 法人
+            registeredAddress: data.registeredAddress, // 注册地址
+            industryCode: data.industryCode, // 所在行业
+            businessLicenseUrl: data.businessLicenseUrl, // 营业执照url
+            businessLicenseId: data.businessLicenseId // 营业执照id
+          }
+          this.feeForm = {
+            contact: data.contact, // 企业联系人
+            contactNumber: data.contactNumber // 联系人电话
+          }
+        }
+      ).catch(
+        error => {
+          this.$message.error(error.response.data.msg)
+        }
+      )
+    }
   },
   methods: {
     clearAdd() {
@@ -166,16 +196,32 @@ export default {
         ...this.addForm,
         ...this.feeForm
       }
-      createEnterpriseAPI(newForm).then(
-        () => {
-          this.$message.success('添加成功')
-          this.$router.back()
-        }
-      ).catch(
-        error => {
-          this.$message.error(error.response.data.msg)
-        }
-      )
+      if (this.$route.query.id) {
+        newForm.id = this.$route.query.id
+        updateEnterpriseAPI(newForm).then(
+          () => {
+            this.$message.success('编辑成功')
+            this.clearAdd()
+            this.$router.back()
+          }
+        ).catch(
+          error => {
+            this.$message.error(error.response.data.msg)
+          }
+        )
+      } else {
+        createEnterpriseAPI(newForm).then(
+          () => {
+            this.$message.success('添加成功')
+            this.clearAdd()
+            this.$router.back()
+          }
+        ).catch(
+          error => {
+            this.$message.error(error.response.data.msg)
+          }
+        )
+      }
     }
   }
 }

@@ -74,7 +74,7 @@
 
 <script>
 
-import { createCardAPI, getCardDetailAPI, updateCardAPI } from '@/api/car'
+import { createCardAPI, getCardDetailAPI, rechargeCardAPI, updateCardAPI } from '@/api/car'
 
 export default {
   data() {
@@ -230,7 +230,7 @@ export default {
                   }
                   delete payload.payTime
                   delete payload.cardStatus
-                  if (this.$route.query.id) {
+                  if (this.$route.query.id && !this.$store.state.user.inputStatus) {
                     updateCardAPI({
                       ...payload
                     }).then(
@@ -238,6 +238,28 @@ export default {
                         this.$message({
                           type: 'success',
                           message: '修改成功'
+                        })
+                        this.clearAdd()
+                        this.$router.back()
+                      }
+                    ).catch(
+                      error => {
+                        this.$message.error(error.response.data.msg)
+                      }
+                    )
+                  } else if (this.$route.query.id && this.$store.state.user.inputStatus) {
+                    const newFrom = {
+                      cardStartDate: this.feeForm.payTime[0],
+                      cardEndDate: this.feeForm.payTime[1],
+                      paymentAmount: this.feeForm.paymentAmount,
+                      paymentMethod: this.feeForm.paymentMethod,
+                      carInfoId: this.feeForm.carInfoId
+                    }
+                    rechargeCardAPI(newFrom).then(
+                      () => {
+                        this.$message({
+                          type: 'success',
+                          message: '续费成功'
                         })
                         this.$router.back()
                       }

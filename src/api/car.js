@@ -79,3 +79,11 @@ export function getCardRechargeAPI(id) {
     method: 'GET'
   })
 }
+
+export function rechargeCardAPI(data) {
+  return request({
+    url: '/parking/card/recharge',
+    method: 'POST',
+    data
+  })
+}

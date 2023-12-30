@@ -25,7 +25,7 @@
           <template #default="scope">
             <el-button size="mini" type="text">添加合同</el-button>
             <el-button size="mini" type="text">查看</el-button>
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="updateEnterprise(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text">删除</el-button>
           </template>
         </el-table-column>
@@ -95,6 +95,9 @@ export default {
     },
     addEnterprise() {
       this.$router.push('/addEnterprise')
+    },
+    updateEnterprise(id) {
+      this.$router.push('/addEnterprise?id=' + id)
     },
     handleSizeChange(pageSize) {
       this.params.pageSize = pageSize
