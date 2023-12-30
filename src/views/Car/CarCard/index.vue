@@ -191,7 +191,6 @@ export default {
         }
       )
     */
-    this.loadingFlag = true
     this.getList()
     proportionCardAPI().then(
       res => {
