@@ -18,6 +18,11 @@ export const routes = [
     hidden: true // 对菜单隐藏
   },
   {
+    path: '/addEnterprise',
+    component: () => import('@/views/Park/Enterprise/addEnterprise'),
+    hidden: true // 对菜单隐藏
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/workbench'

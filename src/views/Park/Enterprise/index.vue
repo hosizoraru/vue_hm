@@ -1,14 +1,126 @@
 <template>
-  <div class="enterprise-container">
-    企业管理
+  <div class="building-container">
+    <!-- 搜索区域 -->
+    <div class="search-container">
+      <div class="search-label">企业名称：</div>
+      <el-input v-model="params.name" clearable placeholder="请输入内容" class="search-main" @clear="getList" />
+      <el-button icon="el-icon-search" type="primary" @click="doSearch">查询</el-button>
+    </div>
+    <div class="create-container">
+      <el-button type="primary" size="medium" @click="addEnterprise">添加企业<i class="el-icon-upload el-icon--right" /></el-button>
+      <el-button type="success" icon="el-icon-refresh" size="medium" @click="refreshLoading">刷新页面</el-button>
+    </div>
+    <!-- 表格区域 -->
+    <div class="table">
+      <el-table ref="tableList" style="width: 100%" :data="tableList">
+        <el-table-column type="index" label="序号" />
+        <el-table-column label="企业名称" width="320" prop="name" />
+        <el-table-column label="联系人" prop="contact" />
+        <el-table-column
+          label="联系电话"
+          prop="contactNumber"
+        />
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button size="mini" type="text">添加合同</el-button>
+            <el-button size="mini" type="text">查看</el-button>
+            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="page-container">
+      <el-pagination
+        layout="total, prev, pager, next"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+import { getEnterpriseListAPI } from '@/api/enterprise'
+
 export default {
-  name: 'Building'
+  data() {
+    return {
+      tableList: [],
+      refreshLoadingFlag: false,
+      params: {
+        page: 1,
+        pageSize: 10,
+        name: null
+      },
+      total: 0,
+      formList: {
+        name: null,
+        contact: null,
+        contactNumber: null
+      }
+    }
+  },
+  mounted() {
+    this.getList()
+  },
+  methods: {
+    getList() {
+      getEnterpriseListAPI(this.params).then(
+        res => {
+          this.tableList = res.data.rows
+          this.total = res.data.total
+        }
+      )
+    },
+    doSearch() {
+      this.params.page = 1
+      this.getList()
+    },
+    async refreshLoading() {
+      this.refreshLoadingFlag = true
+      await this.getList()
+      setTimeout(
+        () => {
+          this.refreshLoadingFlag = false
+        },
+        1000
+      )
+    },
+    addEnterprise() {
+      this.$router.push('/addEnterprise')
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+.department-container {
+  padding: 10px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgb(237, 237, 237, .9);
+;
+  padding-bottom: 20px;
+
+  .search-label {
+    width: 100px;
+  }
+
+  .search-main {
+    width: 220px;
+    margin-right: 10px;
+  }
+}
+.create-container{
+  margin: 10px 0;
+}
+.page-container{
+  padding:4px 0;
+  text-align: right;
+}
+.form-container{
+  padding:0 80px;
+}
 </style>
