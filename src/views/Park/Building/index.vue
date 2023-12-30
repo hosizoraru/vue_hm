@@ -5,7 +5,7 @@
       <div class="search-label">楼宇名称：</div>
       <el-input v-model="params.name" placeholder="请输入内容" class="search-main" clearable @clear="getList" />
       <el-button type="primary" icon="el-icon-search" @click="doSearch">查询</el-button>
-      <el-button type="success" :circle="true" icon="el-icon-refresh" :loading="refreshLoadingFlag" @click="refreshLoading" />
+      <el-button type="success" :circle="true" icon="el-icon-refresh" :loading="loadingFlag" @click="refreshLoading" />
     </div>
     <div class="add-container">
       <el-button-group>
@@ -22,6 +22,10 @@
         prop: 对应列内容的字段名
       -->
       <el-table
+        v-loading="loadingFlag"
+        element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.3)"
         style="width: 100%"
         :data="tableData"
         stripe
@@ -157,7 +161,7 @@ export default {
   data() {
     return {
       tableData: [],
-      refreshLoadingFlag: false,
+      loadingFlag: true,
       total: 0,
       dialogVisible: false,
       labelPosition: 'right',
@@ -191,7 +195,7 @@ export default {
         { label: '租贷中', value: 1 },
         { label: '空置中', value: 0 }
       ],
-      selectBuildingList: [],
+      selectBuildingList: []
     }
   },
   mounted() {
@@ -207,6 +211,12 @@ export default {
           // console.log(res)
           this.tableData = res.data.rows
           this.total = res.data.total
+          this.loadingFlag = false
+        }
+      ).catch(
+        error => {
+          this.$message.error(error.response.data.msg)
+          this.loadingFlag = true
         }
       )
     },
@@ -215,14 +225,8 @@ export default {
       this.getList()
     },
     async refreshLoading() {
-      this.refreshLoadingFlag = true
+      this.loadingFlag = true
       await this.getList()
-      setTimeout(
-        () => {
-          this.refreshLoadingFlag = false
-        },
-        1000
-      )
     },
     statusFormatter(row) {
       return row.status === 1 ? '租贷中' : '空置中'

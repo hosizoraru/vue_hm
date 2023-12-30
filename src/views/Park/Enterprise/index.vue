@@ -8,11 +8,19 @@
     </div>
     <div class="create-container">
       <el-button type="primary" size="medium" @click="addEnterprise">添加企业<i class="el-icon-upload el-icon--right" /></el-button>
-      <el-button type="success" icon="el-icon-refresh" size="medium" @click="refreshLoading">刷新页面</el-button>
+      <el-button type="success" :loading="loadingFlag" icon="el-icon-refresh" size="medium" @click="refreshLoading">刷新页面</el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
-      <el-table ref="tableList" style="width: 100%" :data="tableList">
+      <el-table
+        ref="tableList"
+        style="width: 100%"
+        :data="tableList"
+        v-loading="loadingFlag"
+        element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.3)"
+      >
         <el-table-column type="index" label="序号" />
         <el-table-column label="企业名称" width="320" prop="name" sortable />
         <el-table-column label="联系人" prop="contact" sortable />
@@ -52,7 +60,7 @@ export default {
   data() {
     return {
       tableList: [],
-      refreshLoadingFlag: false,
+      loadingFlag: false,
       params: {
         page: 1,
         pageSize: 10,
@@ -76,6 +84,12 @@ export default {
         res => {
           this.tableList = res.data.rows
           this.total = res.data.total
+          this.loadingFlag = false
+        }
+      ).catch(
+        error => {
+          this.$message.error(error.response.data.msg)
+          this.loadingFlag = true
         }
       )
     },
@@ -84,14 +98,8 @@ export default {
       this.getList()
     },
     async refreshLoading() {
-      this.refreshLoadingFlag = true
+      this.loadingFlag = true
       await this.getList()
-      setTimeout(
-        () => {
-          this.refreshLoadingFlag = false
-        },
-        1000
-      )
     },
     addEnterprise() {
       this.$router.push('/addEnterprise')
