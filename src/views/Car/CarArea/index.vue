@@ -22,8 +22,8 @@
         <el-table-column label="备注" prop="remark" sortable/>
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="mini" type="text">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="updateArea(scope.row)">编辑</el-button>
+            <el-button size="mini" type="text" @click="deleteArea(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -48,12 +48,14 @@
                 <template slot="append">㎡</template>
               </el-input>
             </el-form-item>
-            <el-form-item label="关联计费规则" prop="ruleName">
-              <el-select v-model="addForm.ruleName" placeholder="请选择计费规则">
-                <el-option label="分段计费" value="分段计费" />
-                <el-option label="按次收费" value="按次收费" />
-                <el-option label="按小时计费" value="按小时计费" />
-                <el-option label="按分钟计费" value="按分钟计费" />
+            <el-form-item label="关联计费规则" prop="ruleId">
+              <el-select v-model="addForm.ruleId" placeholder="请选择计费规则">
+                <el-option
+                  v-for="item in ruleDropList"
+                  :key="item.id"
+                  :value="item.id"
+                  :label="item.name"
+                />
               </el-select>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
@@ -70,7 +72,7 @@
         <template #footer>
           <el-button size="medium" type="warning" @click="clearForm">重 置</el-button>
           <el-button size="medium" type="danger" @click="handleClose">取 消</el-button>
-          <el-button size="medium" type="primary">确 定</el-button>
+          <el-button size="medium" type="primary" @click="confirmAdd">确 定</el-button>
         </template>
       </el-dialog>
     </div>
@@ -90,7 +92,7 @@
 
 <script>
 
-import { getAreaListAPI } from '@/api/area'
+import { createAreaAPI, deleteAreaAPI, getAreaListAPI, updateAreaAPI } from '@/api/area'
 
 export default {
   data() {
@@ -100,8 +102,7 @@ export default {
       dialogVisible: false,
       params: {
         page: 1,
-        pageSize: 10,
-        name: null
+        pageSize: 10
       },
       pageSizes: [2, 3, 5, 10, 15, 20, 30],
       total: 0,
@@ -111,7 +112,7 @@ export default {
         spaceNumber: 0,
         areaProportion: 0,
         remark: null,
-        ruleId: 0,
+        ruleId: null,
         ruleName: null,
         hoverRuleName: null
       },
@@ -121,16 +122,48 @@ export default {
         ],
         spaceNumber: [
           { required: true, message: '请输入车位数', trigger: 'blur' },
-          { min: 0, message: '车位数不能小于0', trigger: 'blur' }
+          { type: 'number' , min: 0, message: '车位数不能小于0', trigger: 'blur' }
         ],
         areaProportion: [
           { required: true, message: '请输入面积', trigger: 'blur' },
-          { min: 0, message: '面积不能小于0', trigger: 'blur' }
+          {
+            validator: (rule, value, callback) => {
+              const numericValue = parseFloat(value);
+              if (isNaN(numericValue) || numericValue < 0) {
+                callback(new Error('面积不能小于0'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur',
+          }
         ],
-        ruleName: [
+        ruleId: [
           { required: true, message: '请选择计费规则', trigger: 'change' }
         ]
-      }
+      },
+      ruleDropList: [
+        // {
+        //   id: 10,
+        //   name: null
+        // },
+        {
+          id: 4,
+          name: '分段计费'
+        },
+        {
+          id: 3,
+          name: '按次收费'
+        },
+        {
+          id: 2,
+          name: '按小时计费'
+        },
+        {
+          id: 1,
+          name: '按分钟计费'
+        }
+      ]
     }
   },
   mounted() {
@@ -143,6 +176,7 @@ export default {
           this.tableList = res.data.rows
           this.total = res.data.total
           this.loadingFlag = false
+          // console.log(this.tableList)
         }
       ).catch(
         error => {
@@ -183,6 +217,99 @@ export default {
     },
     clearForm() {
       this.$refs.addForm.resetFields()
+    },
+    confirmAdd() {
+      this.$refs.addForm.validate(
+        valid => {
+          if (valid) {
+            const newForm = {
+              areaName: this.addForm.areaName,
+              spaceNumber: this.addForm.spaceNumber,
+              areaProportion: this.addForm.areaProportion,
+              remark: this.addForm.remark,
+              ruleId: this.addForm.ruleId
+            }
+            if (this.addForm.id) {
+              newForm.id = this.addForm.id
+              updateAreaAPI(newForm).then(
+                () => {
+                  this.$message({
+                    type: 'success',
+                    message: '编辑成功'
+                  })
+                  this.dialogVisible = false
+                  this.clearForm()
+                  this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            } else {
+              createAreaAPI(newForm).then(
+                () => {
+                  this.$message({
+                    type: 'success',
+                    message: '添加成功'
+                  })
+                  this.dialogVisible = false
+                  this.clearForm()
+                  this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            }
+          } else {
+            this.$message.info('请填写完整信息')
+          }
+        }
+      )
+    },
+    updateArea(row) {
+      this.dialogVisible = true
+      this.addForm = {
+        id: row.id,
+        areaName: row.areaName,
+        spaceNumber: row.spaceNumber,
+        areaProportion: row.areaProportion,
+        remark: row.remark,
+        ruleId: row.ruleId,
+      }
+    },
+    deleteArea(id) {
+      this.$confirm('此操作将永久删除该区域, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(
+        async() => {
+          deleteAreaAPI(id).then(
+            async() => {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.getList()
+            }
+          ).catch(
+            error => {
+              this.$message.error(error.response.data.msg)
+            }
+          )
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
+      )
     }
   }
 }
