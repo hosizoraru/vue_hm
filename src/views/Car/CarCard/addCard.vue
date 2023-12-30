@@ -34,7 +34,6 @@
               <el-date-picker
                 v-model="feeForm.payTime"
                 :picker-options="pickerOptions"
-                :disabled="inputDisable"
                 align="right"
                 type="daterange"
                 end-placeholder="结束日期"
@@ -44,10 +43,10 @@
               />
             </el-form-item>
             <el-form-item label="支付金额" prop="paymentAmount">
-              <el-input v-model="feeForm.paymentAmount" :disabled="inputDisable" />
+              <el-input v-model="feeForm.paymentAmount" />
             </el-form-item>
             <el-form-item label="支付方式" prop="paymentMethod">
-              <el-select v-model="feeForm.paymentMethod" :disabled="inputDisable">
+              <el-select v-model="feeForm.paymentMethod">
                 <el-option
                   v-for="item in payMethodList"
                   :key="item.id"
@@ -66,8 +65,8 @@
     </main>
     <footer class="add-footer">
       <div class="btn-container">
-        <el-button :disabled="inputDisable" @click="clearAdd">重置</el-button>
-        <el-button type="primary" :disabled="inputDisable" @click="confirmAdd">确定</el-button>
+        <el-button @click="clearAdd">重置</el-button>
+        <el-button type="primary" @click="confirmAdd">确定</el-button>
       </div>
     </footer>
   </div>
@@ -166,7 +165,7 @@ export default {
     // return this.$route.query.id ? '编辑月卡' : this.$store.state.user.inputStatus ? '查看月卡' : '添加月卡'
     titleString() {
       if (this.$store.state.user.inputStatus) {
-        return '查看月卡'
+        return '续费月卡'
       } else if (this.$route.query.id) {
         return '编辑月卡'
       } else {
@@ -296,8 +295,12 @@ export default {
       )
     },
     clearAdd() {
-      this.$refs.carInfoForm.resetFields()
-      this.$refs.feeForm.resetFields()
+      if (this.$store.state.user.inputStatus) {
+        this.$refs.feeForm.resetFields()
+      } else {
+        this.$refs.carInfoForm.resetFields()
+        this.$refs.feeForm.resetFields()
+      }
     }
   }
 }

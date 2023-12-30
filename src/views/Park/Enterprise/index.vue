@@ -14,11 +14,12 @@
     <div class="table">
       <el-table ref="tableList" style="width: 100%" :data="tableList">
         <el-table-column type="index" label="序号" />
-        <el-table-column label="企业名称" width="320" prop="name" />
-        <el-table-column label="联系人" prop="contact" />
+        <el-table-column label="企业名称" width="320" prop="name" sortable />
+        <el-table-column label="联系人" prop="contact" sortable />
         <el-table-column
           label="联系电话"
           prop="contactNumber"
+          sortable
         />
         <el-table-column label="操作">
           <template #default="scope">
@@ -32,7 +33,13 @@
     </div>
     <div class="page-container">
       <el-pagination
-        layout="total, prev, pager, next"
+        :current-page="params.page"
+        :page-size="params.pageSize"
+        :page-sizes="pageSizes"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
   </div>
@@ -51,6 +58,7 @@ export default {
         pageSize: 10,
         name: null
       },
+      pageSizes: [2, 3, 5, 10, 15, 20, 30],
       total: 0,
       formList: {
         name: null,
@@ -87,6 +95,14 @@ export default {
     },
     addEnterprise() {
       this.$router.push('/addEnterprise')
+    },
+    handleSizeChange(pageSize) {
+      this.params.pageSize = pageSize
+      this.getList()
+    },
+    handleCurrentChange(page) {
+      this.params.page = page
+      this.getList()
     }
   }
 }

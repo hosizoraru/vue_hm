@@ -23,6 +23,11 @@ export const routes = [
     hidden: true // 对菜单隐藏
   },
   {
+    path: '/infoCard',
+    component: () => import('@/views/Car/CarCard/infoCard'),
+    hidden: true // 对菜单隐藏
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/workbench'

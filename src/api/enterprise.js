@@ -34,3 +34,26 @@ export function deleteEnterpriseAPI(id) {
     method: 'DELETE'
   })
 }
+
+/**
+ * 获取行业列表
+ * @returns
+ */
+export function getIndustryListAPI() {
+  return request({
+    url: '/park/industry'
+  })
+}
+
+/**
+ * 上传合同
+ * @returns
+ */
+export function uploadAPI(data) {
+  return request({
+    url: '/upload',
+    method: 'POST',
+    data
+  })
+}
+

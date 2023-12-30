@@ -3,7 +3,7 @@
     <header class="add-header">
       <div class="left">
         <span class="arrow" @click="$router.back()"><i class="el-icon-arrow-left" />返回</span>
-        <span>|</span>
+        <span> | </span>
         <span>添加企业</span>
       </div>
       <div class="right">
@@ -14,33 +14,55 @@
       <div class="form-container">
         <div class="title">企业信息</div>
         <div class="form">
-          <el-form ref="ruleForm" label-width="100px">
+          <el-form ref="addForm" label-width="100px" :model="addForm" :rules="addFormRules">
             <el-form-item label="企业名称" prop="name">
               <el-input v-model="addForm.name" />
             </el-form-item>
-            <el-form-item label="法人" prop="name">
+            <el-form-item label="法人" prop="legalPerson">
               <el-input v-model="addForm.legalPerson" />
             </el-form-item>
-            <el-form-item label="注册地址" prop="name">
+            <el-form-item label="注册地址" prop="registeredAddress">
               <el-input v-model="addForm.registeredAddress" />
             </el-form-item>
-            <el-form-item label="所在行业" prop="name">
-              <el-select v-model="addForm.industryCode" />
+            <el-form-item label="所在行业" prop="industryCode">
+              <el-select v-model="addForm.industryCode">
+                <el-option
+                  v-for="item in industryList"
+                  :key="item.industryCode"
+                  :value="item.industryCode"
+                  :label="item.industryName"
+                />
+              </el-select>
             </el-form-item>
-            <el-form-item label="企业联系人" prop="name">
-              <el-input v-model="addForm.contact" />
+            <el-form-item label="营业执照" prop="name">
+              <el-upload
+                action="#"
+                :http-request="uploadRequest"
+              >
+                <el-button icon="el-icon-upload" size="small" type="primary" plain>点击上传</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+              </el-upload>
             </el-form-item>
-            <el-form-item label="联系电话" prop="name">
-              <el-input v-model="addForm.contactNumber" />
+          </el-form>
+        </div>
+      </div>
+      <div class="form-container">
+        <div class="title">联系人信息</div>
+        <div class="form">
+          <el-form ref="feeForm" label-width="100px" :model="feeForm" :rules="feeFormRules">
+            <el-form-item label="企业联系人" prop="contact">
+              <el-input v-model="feeForm.contact" />
             </el-form-item>
-            <el-form-item label="营业执照" prop="name" />
+            <el-form-item label="联系电话" prop="contactNumber">
+              <el-input v-model="feeForm.contactNumber" />
+            </el-form-item>
           </el-form>
         </div>
       </div>
     </main>
     <footer class="add-footer">
       <div class="btn-container">
-        <el-button>重置</el-button>
+        <el-button type="danger" @click="clearAdd">重置</el-button>
         <el-button type="primary">确定</el-button>
       </div>
     </footer>
@@ -48,6 +70,8 @@
 </template>
 
 <script>
+import { getIndustryListAPI, uploadAPI } from '@/api/enterprise'
+
 export default {
   data() {
     return {
@@ -56,16 +80,65 @@ export default {
         legalPerson: '', // 法人
         registeredAddress: '', // 注册地址
         industryCode: '', // 所在行业
-        contact: '', // 企业联系人
-        contactNumber: '', // 联系人电话
         businessLicenseUrl: '', // 营业执照url
         businessLicenseId: '' // 营业执照id
-      }
+      },
+      addFormRules: {
+        name: [
+          { required: true, message: '请输入企业名称', trigger: 'blur' }
+        ],
+        legalPerson: [
+          { required: true, message: '请输入法人', trigger: 'blur' }
+        ],
+        registeredAddress: [
+          { required: true, message: '请输入注册地址', trigger: 'blur' }
+        ],
+        industryCode: [
+          { required: true, message: '请选择所在行业', trigger: 'change' }
+        ],
+        businessLicenseUrl: [
+          { required: true, message: '请上传营业执照', trigger: 'change' }
+        ]
+      },
+      feeForm: {
+        contact: '', // 企业联系人
+        contactNumber: '' // 联系人电话
+      },
+      feeFormRules: {
+        contact: [
+          { required: true, message: '请输入企业联系人', trigger: 'blur' }
+        ],
+        contactNumber: [
+          { required: true, message: '请输入联系人电话', trigger: 'blur' }
+        ]
+      },
+      industryList: []
     }
   },
   mounted() {
+    this.getIndustryList()
   },
   methods: {
+    clearAdd() {
+      this.$refs.addForm.resetFields()
+    },
+    async getIndustryList() {
+      const res = await getIndustryListAPI()
+      this.industryList = res.data
+    },
+    async uploadRequest(data) {
+      const file = data.file
+
+      // 处理formData类型参数
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'businessLicense')
+      const res = await uploadAPI(formData)
+
+      // 赋值表单数据
+      this.addForm.businessLicenseId = res.data.id
+      this.addForm.businessLicenseUrl = res.data.url
+    }
   }
 }
 </script>

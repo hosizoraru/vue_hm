@@ -66,7 +66,7 @@
         <el-table-column label="剩余有效天数" prop="totalEffectiveDate" sortable :formatter="formatter" />
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
-            <el-button size="mini" type="text">续费</el-button>
+            <el-button size="mini" type="text" @click="jumpToRenewCard(scope.row.id)">续费</el-button>
             <el-button size="mini" type="text" @click="jumpToDetailCard(scope.row.id)">查看</el-button>
             <el-button size="mini" type="text" @click="jumpToUpdateCard(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="deleteCard(scope.row.id)">删除</el-button>
@@ -313,6 +313,9 @@ export default {
       this.$store.commit('user/setInputStatus', false)
     },
     jumpToDetailCard(id) {
+      this.$router.push('/infoCard?id=' + id)
+    },
+    jumpToRenewCard(id) {
       this.$router.push('/addCard?id=' + id)
       this.$store.commit('user/setInputStatus', true)
     },
