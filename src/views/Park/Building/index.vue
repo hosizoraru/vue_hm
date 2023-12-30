@@ -89,7 +89,7 @@
           visible.sync 双向绑定
       -->
       <el-dialog
-        title="添加楼宇"
+        :title="addForm.id ? '编辑楼宇' : '添加楼宇'"
         width="60%"
         height="60%"
         :visible.sync="dialogVisible"
@@ -191,7 +191,7 @@ export default {
         { label: '租贷中', value: 1 },
         { label: '空置中', value: 0 }
       ],
-      selectBuildingList: []
+      selectBuildingList: [],
     }
   },
   mounted() {

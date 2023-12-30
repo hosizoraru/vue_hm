@@ -1,7 +1,10 @@
 <template>
   <div class="add-card">
     <header class="add-header">
-      <el-page-header content="增加月卡" @back="$router.back()" />
+      <el-page-header
+        :title="titleString"
+        @back="$router.back()"
+      />
     </header>
     <main class="add-main">
       <div class="form-container">
@@ -155,6 +158,20 @@ export default {
         }]
       },
       inputDisable: false
+      // titleString: ''
+    }
+  },
+  computed: {
+    // return this.$store.state.user.inputStatus ? '查看月卡' : '编辑月卡'
+    // return this.$route.query.id ? '编辑月卡' : this.$store.state.user.inputStatus ? '查看月卡' : '添加月卡'
+    titleString() {
+      if (this.$store.state.user.inputStatus) {
+        return '查看月卡'
+      } else if (this.$route.query.id) {
+        return '编辑月卡'
+      } else {
+        return '添加月卡'
+      }
     }
   },
   mounted() {
@@ -164,6 +181,7 @@ export default {
         $route.query.id
      */
     const id = this.$route.query.id
+    // this.titleWhat()
     // const type = this.$route.query.type
     // console.log(this.$route.query)
     // console.log(id)
