@@ -28,6 +28,11 @@ export const routes = [
     hidden: true // 对菜单隐藏
   },
   {
+    path: '/infoEnterprise',
+    component: () => import('@/views/Park/Enterprise/infoEnterprise'),
+    hidden: true // 对菜单隐藏
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/workbench'
