@@ -14,7 +14,14 @@
     </div>
     <!-- 表格区域 -->
     <div class="table">
-      <el-table style="width: 100%" :data="employeeList">
+      <el-table
+        v-loading="loadingFlag"
+        element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.3)"
+        style="width: 100%"
+        :data="employeeList"
+      >
         <el-table-column type="index" label="序号" />
         <el-table-column label="员工姓名" width="120" prop="name" sortable />
         <el-table-column label="登录账号" width="120" prop="userName" sortable />
