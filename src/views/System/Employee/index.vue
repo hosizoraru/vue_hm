@@ -32,7 +32,7 @@
         <el-table-column label="添加时间" prop="createTime" width="170" sortable/>
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
-            <el-button size="mini" type="text" @click="updateEmployee(scope.row)">编辑</el-button>
+            <el-button size="mini" type="text" @close="clearForm" @click="updateEmployee(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="deleteEmployee(scope.row.id)">删除</el-button>
             <el-button size="mini" type="text" @click="resetEmployeePwd(scope.row.id)">重置密码</el-button>
           </template>
