@@ -240,8 +240,12 @@ export default {
       )
     },
     deleteEmployee(id) {
-      this.$confirm('确认删除？')
-        .then(
+      this.$confirm('确认删除？', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(
           async() => {
             await deleteEmployeeAPI(id)
             this.$message({
@@ -256,7 +260,7 @@ export default {
             type: 'info',
             message: '已取消删除'
           })
-        }
+          }
       )
     },
     resetEmployeePwd(id) {
@@ -265,8 +269,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
         center: true
-      })
-        .then(
+      }).then(
           async() => {
             await resetEmployeePasswordAPI(id)
             this.$message({
