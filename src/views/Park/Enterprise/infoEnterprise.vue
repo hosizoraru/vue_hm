@@ -18,10 +18,14 @@
       <div class="table-container">
         <div class="title">租贷记录</div>
         <div class="table-container">
+          <el-button type="success" :loading="loadingFlag" icon="el-icon-refresh" size="medium" @click="refreshLoading">刷新页面</el-button>
           <el-table
+            v-loading="loadingFlag"
+            element-loading-text="拼命加载中"
+            element-loading-spinner="el-icon-loading"
+            element-loading-background="rgba(0, 0, 0, 0.3)"
             :data="form.rent"
             style="width: 100%"
-            border
           >
             <el-table-column
               type="index"
@@ -90,6 +94,7 @@ export default {
   data() {
     return {
       total: 0,
+      loadingFlag: true,
       rentList: [],
       enterpriseList: [],
       form: {
@@ -98,7 +103,6 @@ export default {
     }
   },
   mounted() {
-    const id = this.$route.query.id
     this.getDetail()
     this.getEnterpriseList()
   },
@@ -127,6 +131,12 @@ export default {
     async getDetail() {
       const res = await getEnterpriseDetail(this.$route.query.id)
       this.form = res.data
+      this.loadingFlag = false
+    },
+    async refreshLoading() {
+      this.loadingFlag = true
+      await this.getDetail()
+      await this.getEnterpriseList()
     },
     async getEnterpriseList() {
       const res = await getEnterpriseListAPI(this.params)
@@ -137,6 +147,7 @@ export default {
         }
       })
       this.total = res.data.total
+      this.loadingFlag = false
     },
     outRent(id) {
       this.$confirm(
