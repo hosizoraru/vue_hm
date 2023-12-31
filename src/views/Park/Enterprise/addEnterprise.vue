@@ -39,11 +39,11 @@
                   上传组件
                   action 上传的地址
                   :http-request 上传的方法 会覆盖默认的上传方法
+                  :on-preview 点击文件列表中已上传的文件时的钩子
               -->
               <el-upload
                 action="#"
                 :http-request="uploadRequest"
-                :on-preview="handlePreview"
                 :before-upload="beforeUpload"
                 list-type="picture"
                 multiple
@@ -180,9 +180,9 @@ export default {
       this.addForm.businessLicenseId = res.data.id
       this.addForm.businessLicenseUrl = res.data.url
     },
-    handlePreview(file) {
-      console.log(file)
-    },
+    // handlePreview(file) {
+    //   console.log(file)
+    // },
     beforeUpload(file) {
       // console.log(file)
       const sizeOK = file.size / 1024 / 1024 < 5

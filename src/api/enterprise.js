@@ -66,3 +66,26 @@ export function uploadAPI(data) {
   })
 }
 
+/**
+ * 获取楼宇列表
+ * @param {*} id
+ * @returns
+ */
+export function getRentBuildListAPI() {
+  return request({
+    url: '/park/rent/building'
+  })
+}
+
+/**
+ * 创建合同
+ * @returns
+ * @param data
+ */
+export function createRentAPI(data) {
+  return request({
+    url: '/park/enterprise/rent',
+    method: 'POST',
+    data
+  })
+}

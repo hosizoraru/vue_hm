@@ -287,7 +287,7 @@ export default {
       )
     },
     updateEmployee(row) {
-      console.dir(row)
+      // console.dir(row)
       this.openDialog()
       this.addForm = {
         id: row.id,

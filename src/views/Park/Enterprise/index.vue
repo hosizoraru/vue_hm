@@ -32,13 +32,13 @@
         <el-table-column label="操作">
           <template #default="scope">
             <el-button-group class="button-container">
-              <el-button size="mini" type="text">添加合同</el-button>
+              <el-button size="mini" type="text" @click="openDialog(scope.row.id)">添加合同</el-button>
               <el-button size="mini" type="text">查看</el-button>
               <el-button size="mini" type="text" @click="updateEnterprise(scope.row.id)">编辑</el-button>
               <el-popconfirm
                 title="此操作将永久删除该企业, 是否继续?"
-                confirmButtonText="确定"
-                cancelButtonText="取消"
+                confirm-button-text="确定"
+                cancel-button-text="取消"
                 type="warning"
                 @confirm="deleteEnterprise(scope.row.id)"
               >
@@ -60,17 +60,80 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <el-dialog
+      title="添加合同"
+      width="480ox"
+      :visible.sync="dialogVisible"
+      :before-close="handleClose"
+      center
+    >
+      <!-- 表单接口 -->
+      <div class="form-container">
+        <el-form
+          ref="rentForm"
+          :model="rentForm"
+          :rules="rentRules"
+          label-position="top"
+        >
+          <el-form-item label="租赁楼宇" prop="buildingId">
+            <el-select v-model="rentForm.buildingId" placeholder="请选择">
+              <el-option
+                v-for="item in buildingList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="租赁起止日期" prop="rentTime">
+            <el-date-picker
+              v-model="rentForm.rentTime"
+              :picker-options="pickerOptions"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="yyyy-MM-dd"
+              unlink-panels
+            />
+          </el-form-item>
+          <el-form-item label="租赁合同" prop="contractId">
+            <el-upload
+              action="#"
+              :http-request="uploadRequest"
+              :before-upload="beforeUpload"
+              multiple
+            >
+              <el-button icon="el-icon-upload" size="small" type="primary" plain>上传合同文件</el-button>
+              <div slot="tip" class="el-upload__tip">支持扩展名：.doc .docx .pdf, 文件大小不超过5M</div>
+            </el-upload>
+          </el-form-item>
+        </el-form>
+      </div>
+      <template #footer>
+        <el-button size="medium" type="warning" @click="clearForm">重 置</el-button>
+        <el-button size="medium" type="danger" @click="handleClose">取 消</el-button>
+        <el-button size="medium" type="primary" @click="confirmAdd">确 定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { deleteEnterpriseAPI, getEnterpriseListAPI } from '@/api/enterprise'
+import {
+  createRentAPI,
+  deleteEnterpriseAPI,
+  getEnterpriseListAPI,
+  getRentBuildListAPI,
+  uploadAPI
+} from '@/api/enterprise'
 
 export default {
   data() {
     return {
       tableList: [],
       loadingFlag: true,
+      dialogVisible: false,
       params: {
         page: 1,
         pageSize: 10,
@@ -82,6 +145,70 @@ export default {
         name: null,
         contact: null,
         contactNumber: null
+      },
+      rentForm: {
+        buildingId: null, // 楼宇id
+        contractId: null, // 合同id
+        contractUrl: '', // 合同Url
+        enterpriseId: null, // 企业名称
+        type: 0, // 合同类型
+        rentTime: [] // 合同时间
+      },
+      rentRules: {
+        buildingId: [
+          { required: true, message: '请选择楼宇', trigger: 'change' }
+        ],
+        rentTime: [
+          { required: true, message: '请选择租赁日期', trigger: 'change' }
+        ],
+        contractId: [
+          { required: true, message: '请上传合同文件' }
+        ]
+      },
+      buildingList: [],
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: '下一周',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setDate(end.getDate() + 7)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '下半个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setDate(start.getDate() + 15)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '下一个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setMonth(start.getMonth() + 1)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '下两个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setMonth(start.getMonth() + 2)
+              picker.$emit('pick', [start, end])
+            }
+          }
+        ],
+        disabledDate(time) {
+          // Disable dates earlier than today
+          return time.getTime() < new Date(new Date().toDateString()).getTime()
+        }
       }
     }
   },
@@ -145,6 +272,87 @@ export default {
             type: 'info',
             message: '已取消删除'
           })
+        }
+      )
+    },
+    async openDialog(id) {
+      this.dialogVisible = true
+      const res = await getRentBuildListAPI()
+      this.buildingList = res.data
+      this.rentForm.enterpriseId = id
+    },
+    closeDialog() {
+      this.dialogVisible = false
+    },
+    clearForm() {
+      this.$refs.rentForm.resetFields()
+    },
+    handleClose() {
+      this.$confirm('确认关闭？').then(
+        () => {
+          this.closeDialog()
+          this.clearForm()
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消关闭'
+          })
+        }
+      )
+    },
+    async uploadRequest(data) {
+      const file = data.file
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'contract')
+      const res = await uploadAPI(formData)
+      this.rentForm.contractId = res.data.id
+      this.rentForm.contractUrl = res.data.url
+      // this.$refs.rentForm.validateField('contractId')
+    },
+    beforeUpload(file) {
+      const isAllowedType = /\.(doc|docx|pdf)$/i.test(file.name)
+      const isSizeOK = file.size / 1024 / 1024 < 5
+
+      if (!isAllowedType) {
+        this.$message.error('仅支持上传 .doc、.docx 和 .pdf 文件!')
+      } else if (!isSizeOK) {
+        this.$message.error('上传文件大小不能超过 5 MB!')
+      }
+
+      return isAllowedType && isSizeOK
+    },
+    confirmAdd() {
+      this.$refs.rentForm.validate(
+        async valid => {
+          if (valid) {
+            const newForm = {
+              ...this.rentForm
+            }
+            newForm.startTime = newForm.rentTime[0]
+            newForm.endTime = newForm.rentTime[1]
+            delete newForm.rentTime
+            // console.dir(newForm)
+            await createRentAPI(newForm).then(
+              () => {
+                this.$message({
+                  type: 'success',
+                  message: '添加成功'
+                })
+                this.closeDialog()
+                this.clearForm()
+                this.getList()
+              }
+            ).catch(
+              error => {
+                this.$message.error(error.response.data.msg)
+              }
+            )
+          } else {
+            this.$message.error('请完善信息')
+          }
         }
       )
     }
