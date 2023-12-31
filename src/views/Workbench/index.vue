@@ -1,15 +1,15 @@
 <script>
-import { getAreaListAPI } from '@/api/area'
+// import { getAreaListAPI } from '@/api/area'
 
 export default {
   data() {
     return {
     }
   },
-  async mounted() {
-    const res = await getAreaListAPI()
-    console.log('请求结束了', res)
-  },
+  // async mounted() {
+  //   const res = await getAreaListAPI()
+  //   console.log('请求结束了', res)
+  // },
   methods: {
   }
 }

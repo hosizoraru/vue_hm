@@ -83,8 +83,8 @@
         :page-sizes="pageSizes"
         :total="total"
         layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handlePageSizeChange"
-        @current-change="handleCurrentPageChange"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
   </div>
@@ -189,20 +189,11 @@ export default {
       this.loadingFlag = true
       await this.getList()
     },
-    handlePageSizeChange(pageSize) {
+    handleSizeChange(pageSize) {
       this.params.pageSize = pageSize
-      // this.getList()
-      console.log('pageSize 改变了')
-      getAreaListAPI(this.params).then(
-        res => {
-          this.tableList = res.data.rows
-          this.total = res.data.total
-          this.loadingFlag = false
-          console.log('重新加载页面完毕了')
-        }
-      )
+      this.getList()
     },
-    handleCurrentPageChange(page) {
+    handleCurrentChange(page) {
       this.params.page = page
       this.getList()
     },

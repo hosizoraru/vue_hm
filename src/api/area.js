@@ -4,10 +4,11 @@
 
 import request from '@/utils/request'
 
-export function getAreaListAPI() {
+export function getAreaListAPI(params) {
   return request({
     url: '/parking/area/list',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
