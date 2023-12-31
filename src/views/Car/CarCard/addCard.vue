@@ -130,31 +130,89 @@ export default {
         { id: 'Cash', name: '线下' }
       ],
       pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-            picker.$emit('pick', [start, end])
+        shortcuts: [
+          {
+            text: '最近三天',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 3)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近半个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 15)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '后三天',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(end.getTime() + 3600 * 1000 * 24 * 3)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '下一周',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setDate(end.getDate() + 7)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '下半个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setDate(start.getDate() + 15)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '下一个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setMonth(start.getMonth() + 1)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '下两个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setMonth(start.getMonth() + 2)
+              picker.$emit('pick', [start, end])
+            }
           }
-        }, {
-          text: '最近一个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近三个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-            picker.$emit('pick', [start, end])
-          }
-        }]
+        ]
       },
       inputDisable: false
       // titleString: ''

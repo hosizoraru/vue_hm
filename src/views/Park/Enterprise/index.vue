@@ -139,7 +139,7 @@ export default {
                 type: 'success',
                 message: '删除成功'
               })
-              this.getList()
+              await this.getList()
             }
           ).catch(
             error => {

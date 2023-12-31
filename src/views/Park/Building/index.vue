@@ -310,7 +310,7 @@ export default {
       }).then(
         async() => {
           deleteBuildingAPI(id).then(
-            () => {
+            async() => {
               this.$message({
                 type: 'success',
                 message: '删除成功'
@@ -319,7 +319,7 @@ export default {
               if (this.tableData.length === 1) {
                 this.params.page--
               }
-              this.getList()
+              await this.getList()
             }
           ).catch(
             error => {
