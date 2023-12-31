@@ -31,10 +31,20 @@
         />
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="mini" type="text">添加合同</el-button>
-            <el-button size="mini" type="text">查看</el-button>
-            <el-button size="mini" type="text" @click="updateEnterprise(scope.row.id)">编辑</el-button>
-            <el-button size="mini" type="text" @click="deleteEnterprise(scope.row.id)">删除</el-button>
+            <el-button-group class="button-container">
+              <el-button size="mini" type="text">添加合同</el-button>
+              <el-button size="mini" type="text">查看</el-button>
+              <el-button size="mini" type="text" @click="updateEnterprise(scope.row.id)">编辑</el-button>
+              <el-popconfirm
+                title="此操作将永久删除该企业, 是否继续?"
+                confirmButtonText="确定"
+                cancelButtonText="取消"
+                type="warning"
+                @confirm="deleteEnterprise(scope.row.id)"
+              >
+                <el-button slot="reference" size="mini" type="text">删除</el-button>
+              </el-popconfirm>
+            </el-button-group>
           </template>
         </el-table-column>
       </el-table>
@@ -153,6 +163,15 @@ export default {
 <style lang="scss" scoped>
 .department-container {
   padding: 10px;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .el-button {
+    padding: 5px 5px;
+  }
 }
 
 .search-container {
