@@ -40,3 +40,11 @@ export function resetEmployeePasswordAPI(id) {
     data: id
   })
 }
+
+export function updateEmployeeAPI(data) {
+  return request({
+    url: `park/sys/user`,
+    method: 'PUT',
+    data
+  })
+}

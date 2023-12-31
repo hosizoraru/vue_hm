@@ -3,34 +3,36 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">员工姓名：</div>
-      <el-input v-model="params.name"  clearable @clear="getList" placeholder="请输入内容" class="search-main" />
+      <el-input v-model="params.name" clearable @clear="getList" placeholder="请输入内容" class="search-main"/>
       <el-button type="primary" @click="doSearch">查询</el-button>
     </div>
     <div class="create-container">
       <el-button type="primary" icon="el-icon-plus" size="medium" @click="openDialog">添加员工</el-button>
-      <el-button type="success" icon="el-icon-refresh" :loading="loadingFlag" size="medium" @click="refreshLoading">刷新页面</el-button>
+      <el-button type="success" icon="el-icon-refresh" :loading="loadingFlag" size="medium" @click="refreshLoading">
+        刷新页面
+      </el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
       <el-table style="width: 100%" :data="employeeList">
-        <el-table-column type="index" label="序号" />
-        <el-table-column label="员工姓名" width="120" prop="name" sortable />
-        <el-table-column label="登录账号" width="120" prop="userName" sortable />
-        <el-table-column label="联系方式" width="120" prop="phonenumber" sortable />
-        <el-table-column label="角色" width="120" prop="roleName" sortable />
+        <el-table-column type="index" label="序号"/>
+        <el-table-column label="员工姓名" width="120" prop="name" sortable/>
+        <el-table-column label="登录账号" width="120" prop="userName" sortable/>
+        <el-table-column label="联系方式" width="120" prop="phonenumber" sortable/>
+        <el-table-column label="角色" width="120" prop="roleName" sortable/>
         <el-table-column label="状态" width="80" prop="status" sortable :formatter="formatStatus">
-        <!--<template #default="scope">-->
-        <!--<span v-if="scope.row.status === 0">未启用</span>-->
-        <!--<span v-else-if="scope.row.status === 1">启用</span>-->
-        <!--</template>-->
-        <!--<template #default="scope">-->
-        <!--{{ formatStatus(scope.row.status) }}-->
-        <!--</template>-->
+          <!--<template #default="scope">-->
+          <!--<span v-if="scope.row.status === 0">未启用</span>-->
+          <!--<span v-else-if="scope.row.status === 1">启用</span>-->
+          <!--</template>-->
+          <!--<template #default="scope">-->
+          <!--{{ formatStatus(scope.row.status) }}-->
+          <!--</template>-->
         </el-table-column>
-        <el-table-column label="添加时间" prop="createTime" width="170" sortable />
+        <el-table-column label="添加时间" prop="createTime" width="170" sortable/>
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="updateEmployee(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="deleteEmployee(scope.row.id)">删除</el-button>
             <el-button size="mini" type="text" @click="resetEmployeePwd(scope.row.id)">重置密码</el-button>
           </template>
@@ -60,13 +62,13 @@
       <div class="form-container">
         <el-form ref="addForm" :model="addForm" :rules="addFormRules">
           <el-form-item label="员工姓名" prop="name">
-            <el-input v-model="addForm.name" />
+            <el-input v-model="addForm.name"/>
           </el-form-item>
           <el-form-item label="登录账号" prop="userName">
-            <el-input v-model="addForm.userName" />
+            <el-input v-model="addForm.userName"/>
           </el-form-item>
           <el-form-item label="联系方式" prop="phonenumber">
-            <el-input v-model="addForm.phonenumber" />
+            <el-input v-model="addForm.phonenumber"/>
           </el-form-item>
           <el-descriptions>
             <el-descriptions-item label="默认密码">
@@ -101,7 +103,13 @@
 </template>
 
 <script>
-import { createEmployeeAPI, deleteEmployeeAPI, getEmployeeListAPI, resetEmployeePasswordAPI } from '@/api/employee'
+import {
+  createEmployeeAPI,
+  deleteEmployeeAPI,
+  getEmployeeListAPI,
+  resetEmployeePasswordAPI,
+  updateEmployeeAPI
+} from '@/api/employee'
 
 export default {
   name: 'Employee',
@@ -124,7 +132,7 @@ export default {
         roleId: null,
         roleName: '',
         password: '123456',
-        status: 1,
+        status: 1
       },
       addFormRules: {
         name: [
@@ -150,7 +158,7 @@ export default {
         },
         {
           id: 2,
-          name: '黑马测试'
+          name: '基础数据管理'
         },
         {
           id: 3,
@@ -159,6 +167,10 @@ export default {
         {
           id: 4,
           name: '员工及系统管理'
+        },
+        {
+          id: 5,
+          name: '黑马测试'
         }
       ]
     }
@@ -227,17 +239,55 @@ export default {
             }
             delete newForm.roleName
             delete newForm.password
-            await createEmployeeAPI(newForm)
-            this.closeDialog()
-            this.clearForm()
-            this.$message({
-              type: 'success',
-              message: '添加成功'
-            })
-            await this.getList()
+            if (this.addForm.id) {
+              // console.dir(newForm)
+              await updateEmployeeAPI(newForm).then(
+                async() => {
+                  this.$message({
+                    type: 'success',
+                    message: '编辑成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                  await this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            } else {
+              await createEmployeeAPI(newForm).then(
+                async() => {
+                  this.$message({
+                    type: 'success',
+                    message: '添加成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                  await this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            }
           }
         }
       )
+    },
+    updateEmployee(row) {
+      console.dir(row)
+      this.openDialog()
+      this.addForm = {
+        id: row.id,
+        name: row.name,
+        userName: row.userName,
+        phonenumber: row.phonenumber,
+        roleId: row.roleId,
+        status: row.status
+      }
     },
     deleteEmployee(id) {
       this.$confirm('确认删除？', '警告', {
@@ -246,21 +296,21 @@ export default {
         type: 'warning',
         center: true
       }).then(
-          async() => {
-            await deleteEmployeeAPI(id)
-            this.$message({
-              type: 'success',
-              message: '删除成功'
-            })
-            await this.getList()
-          }
-        ).catch(
+        async() => {
+          await deleteEmployeeAPI(id)
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          })
+          await this.getList()
+        }
+      ).catch(
         () => {
           this.$message({
             type: 'info',
             message: '已取消删除'
           })
-          }
+        }
       )
     },
     resetEmployeePwd(id) {
@@ -270,15 +320,15 @@ export default {
         type: 'warning',
         center: true
       }).then(
-          async() => {
-            await resetEmployeePasswordAPI(id)
-            this.$message({
-              type: 'success',
-              message: '重置成功'
-            })
-            await this.getList()
-          }
-        ).catch(
+        async() => {
+          await resetEmployeePasswordAPI(id)
+          this.$message({
+            type: 'success',
+            message: '重置成功'
+          })
+          await this.getList()
+        }
+      ).catch(
         () => {
           this.$message({
             type: 'info',
@@ -299,8 +349,7 @@ export default {
 .search-container {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgb(237, 237, 237, .9);
-;
+  border-bottom: 1px solid rgb(237, 237, 237, .9);;
   padding-bottom: 20px;
 
   .search-label {
@@ -312,14 +361,17 @@ export default {
     margin-right: 10px;
   }
 }
-.create-container{
+
+.create-container {
   margin: 10px 0;
 }
-.page-container{
-  padding:4px 0;
+
+.page-container {
+  padding: 4px 0;
   text-align: right;
 }
-.form-container{
-  padding:0 80px;
+
+.form-container {
+  padding: 0 80px;
 }
 </style>
