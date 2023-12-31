@@ -3,7 +3,7 @@ export default {
   state: {
     // username: '张三'
     token: localStorage.getItem('token') ? localStorage.getItem('token') : '',
-    inputStatus: false
+    inputStatus: false,
   },
   mutations: {
     // changeName(state, newName) {
@@ -16,7 +16,10 @@ export default {
     },
     setInputStatus(state, newInputDisable) {
       state.inputStatus = newInputDisable
+    },
+    removeToken(state) {
+      state.token = ''
+      localStorage.removeItem('token')
     }
-  },
-  actions: {}
+  }
 }

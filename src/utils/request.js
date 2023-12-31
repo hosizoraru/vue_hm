@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { Message } from 'element-ui'
+import router from '@/router'
 
 const service = axios.create({
   baseURL: 'https://api-hmzs.itheima.net/v1',
@@ -24,7 +26,17 @@ service.interceptors.response.use(
     // 数据剥离 res.data.data.xx -> res.data.xx
     return response.data
   },
+  // 响应失败的拦截器 需要判断响应状态码
   error => {
+    // console.dir(error)
+    if (error.response.status === 401) {
+      // window.location.href = '/login'
+      router.push('/login').then(
+        () => {
+          Message.error('登录状态失效，请重新登录')
+        }
+      )
+    }
     return Promise.reject(error)
   }
 )

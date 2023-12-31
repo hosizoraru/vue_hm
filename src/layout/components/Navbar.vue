@@ -1,7 +1,14 @@
 <template>
   <div class="navbar">
     <div class="right-menu">
-      <el-dropdown class="avatar-container" trigger="click">
+      <el-switch
+        style="display: block"
+        active-color="black"
+        inactive-color="blue"
+        active-text="深色模式"
+        inactive-text="浅色模式"
+      />
+      <el-dropdown class="avatar-container">
         <div class="avatar-wrapper">
           <!-- 用户名称 -->
           <span class="name">黑马管理员</span>
@@ -24,10 +31,16 @@
 
 <script>
 export default {
+  data() {
+    return {
+    }
+  },
   methods: {
     // 退出登录
     logout() {
+      this.$store.commit('user/removeToken')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      this.$message.success('退出登录成功')
     }
   }
 }
@@ -109,6 +122,7 @@ export default {
     }
 
     .avatar-container {
+      margin-left: 20px;
       margin-right: 30px;
       .avatar-wrapper {
         margin-top: 5px;

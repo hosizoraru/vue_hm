@@ -14,12 +14,12 @@
     <div class="table">
       <el-table
         ref="tableList"
-        style="width: 100%"
-        :data="tableList"
         v-loading="loadingFlag"
         element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.3)"
+        style="width: 100%"
+        :data="tableList"
       >
         <el-table-column type="index" label="序号" />
         <el-table-column label="企业名称" width="320" prop="name" sortable />
@@ -75,8 +75,8 @@ export default {
       }
     }
   },
-  mounted() {
-    this.getList()
+  async mounted() {
+    await this.getList()
   },
   methods: {
     getList() {

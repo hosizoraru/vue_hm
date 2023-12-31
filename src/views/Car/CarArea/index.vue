@@ -17,9 +17,9 @@
         <el-table-column type="index" label="序号" />
         <el-table-column label="区域名称" prop="areaName" sortable />
         <el-table-column label="车位数（个）" prop="spaceNumber" sortable />
-        <el-table-column label="面积（㎡）" prop="areaProportion" sortable/>
-        <el-table-column label="计费规则" prop="ruleName" sortable/>
-        <el-table-column label="备注" prop="remark" sortable/>
+        <el-table-column label="面积（㎡）" prop="areaProportion" sortable />
+        <el-table-column label="计费规则" prop="ruleName" sortable />
+        <el-table-column label="备注" prop="remark" sortable />
         <el-table-column label="操作">
           <template #default="scope">
             <el-button size="mini" type="text" @click="updateArea(scope.row)">编辑</el-button>
@@ -34,7 +34,7 @@
         width="60%"
         height="60%"
         center
-        >
+      >
         <div class="form-container">
           <el-form ref="addForm" :model="addForm" :rules="addFormRules">
             <el-form-item label="区域名称" prop="areaName">
@@ -83,8 +83,8 @@
         :page-sizes="pageSizes"
         :total="total"
         layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
+        @size-change="handlePageSizeChange"
+        @current-change="handleCurrentPageChange"
       />
     </div>
   </div>
@@ -122,20 +122,20 @@ export default {
         ],
         spaceNumber: [
           { required: true, message: '请输入车位数', trigger: 'blur' },
-          { type: 'number' , min: 0, message: '车位数不能小于0', trigger: 'blur' }
+          { type: 'number', min: 0, message: '车位数不能小于0', trigger: 'blur' }
         ],
         areaProportion: [
           { required: true, message: '请输入面积', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
-              const numericValue = parseFloat(value);
+              const numericValue = parseFloat(value)
               if (isNaN(numericValue) || numericValue < 0) {
-                callback(new Error('面积不能小于0'));
+                callback(new Error('面积不能小于0'))
               } else {
-                callback();
+                callback()
               }
             },
-            trigger: 'blur',
+            trigger: 'blur'
           }
         ],
         ruleId: [
@@ -189,11 +189,20 @@ export default {
       this.loadingFlag = true
       await this.getList()
     },
-    handleSizeChange(pageSize) {
+    handlePageSizeChange(pageSize) {
       this.params.pageSize = pageSize
-      this.getList()
+      // this.getList()
+      console.log('pageSize 改变了')
+      getAreaListAPI(this.params).then(
+        res => {
+          this.tableList = res.data.rows
+          this.total = res.data.total
+          this.loadingFlag = false
+          console.log('重新加载页面完毕了')
+        }
+      )
     },
-    handleCurrentChange(page) {
+    handleCurrentPageChange(page) {
       this.params.page = page
       this.getList()
     },
@@ -277,7 +286,7 @@ export default {
         spaceNumber: row.spaceNumber,
         areaProportion: row.areaProportion,
         remark: row.remark,
-        ruleId: row.ruleId,
+        ruleId: row.ruleId
       }
     },
     deleteArea(id) {
