@@ -60,7 +60,7 @@ export default {
   data() {
     return {
       tableList: [],
-      loadingFlag: false,
+      loadingFlag: true,
       params: {
         page: 1,
         pageSize: 10,
