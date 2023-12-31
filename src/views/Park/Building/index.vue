@@ -203,22 +203,11 @@ export default {
   },
   methods: {
     right,
-    getList() {
-      getBuildingListAPI(
-        this.params
-      ).then(
-        res => {
-          // console.log(res)
-          this.tableData = res.data.rows
-          this.total = res.data.total
-          this.loadingFlag = false
-        }
-      ).catch(
-        error => {
-          this.$message.error(error.response.data.msg)
-          this.loadingFlag = true
-        }
-      )
+    async getList() {
+      const res = await getBuildingListAPI(this.params)
+      this.tableData = res.data.rows
+      this.total = res.data.total
+      this.loadingFlag = false
     },
     doSearch() {
       this.params.page = 1
@@ -242,11 +231,14 @@ export default {
     openDialog() {
       this.dialogVisible = true
     },
+    closeDialog() {
+      this.dialogVisible = false
+    },
     handleClose() {
       this.$confirm('确认关闭？')
         .then(
           () => {
-            this.dialogVisible = false
+            this.closeDialog()
             this.clearForm()
           }
         ).catch(
@@ -270,7 +262,7 @@ export default {
                     message: '更新成功'
                   })
                   this.clearForm()
-                  this.dialogVisible = false
+                  this.closeDialog()
                   this.getList()
                 }
               ).catch(
@@ -286,7 +278,7 @@ export default {
                     message: '添加成功'
                   })
                   this.clearForm()
-                  this.dialogVisible = false
+                  this.closeDialog()
                   this.getList()
                 }
               ).catch(

@@ -170,20 +170,11 @@ export default {
     this.getList()
   },
   methods: {
-    getList() {
-      getAreaListAPI(this.params).then(
-        res => {
-          this.tableList = res.data.rows
-          this.total = res.data.total
-          this.loadingFlag = false
-          // console.log(this.tableList)
-        }
-      ).catch(
-        error => {
-          this.$message.error(error.response.data.msg)
-          this.loadingFlag = true
-        }
-      )
+    async getList() {
+      const res = await getAreaListAPI(this.params)
+      this.tableList = res.data.rows
+      this.total = res.data.total
+      this.loadingFlag = false
     },
     async refreshLoading() {
       this.loadingFlag = true

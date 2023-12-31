@@ -200,19 +200,11 @@ export default {
     )
   },
   methods: {
-    getList() {
-      getMonthCardListAPI(this.params).then(
-        res => {
-          this.list = res.data.rows
-          this.total = res.data.total
-          this.loadingFlag = false
-        }
-      ).catch(
-        error => {
-          this.$message.error(error.response.data.msg)
-          this.loadingFlag = true
-        }
-      )
+    async getList() {
+      const res = await getMonthCardListAPI(this.params)
+      this.list = res.data.rows
+      this.total = res.data.total
+      this.loadingFlag = false
     },
     handleSelectionChange(val) {
       /*

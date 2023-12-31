@@ -3,7 +3,7 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">员工姓名：</div>
-      <el-input v-model="params.name" clearable @clear="getList" placeholder="请输入内容" class="search-main"/>
+      <el-input v-model="params.name" clearable placeholder="请输入内容" class="search-main" @clear="getList" />
       <el-button type="primary" @click="doSearch">查询</el-button>
     </div>
     <div class="create-container">
@@ -15,11 +15,11 @@
     <!-- 表格区域 -->
     <div class="table">
       <el-table style="width: 100%" :data="employeeList">
-        <el-table-column type="index" label="序号"/>
-        <el-table-column label="员工姓名" width="120" prop="name" sortable/>
-        <el-table-column label="登录账号" width="120" prop="userName" sortable/>
-        <el-table-column label="联系方式" width="120" prop="phonenumber" sortable/>
-        <el-table-column label="角色" width="120" prop="roleName" sortable/>
+        <el-table-column type="index" label="序号" />
+        <el-table-column label="员工姓名" width="120" prop="name" sortable />
+        <el-table-column label="登录账号" width="120" prop="userName" sortable />
+        <el-table-column label="联系方式" width="120" prop="phonenumber" sortable />
+        <el-table-column label="角色" width="120" prop="roleName" sortable />
         <el-table-column label="状态" width="80" prop="status" sortable :formatter="formatStatus">
           <!--<template #default="scope">-->
           <!--<span v-if="scope.row.status === 0">未启用</span>-->
@@ -29,7 +29,7 @@
           <!--{{ formatStatus(scope.row.status) }}-->
           <!--</template>-->
         </el-table-column>
-        <el-table-column label="添加时间" prop="createTime" width="170" sortable/>
+        <el-table-column label="添加时间" prop="createTime" width="170" sortable />
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <el-button size="mini" type="text" @close="clearForm" @click="updateEmployee(scope.row)">编辑</el-button>
@@ -62,13 +62,13 @@
       <div class="form-container">
         <el-form ref="addForm" :model="addForm" :rules="addFormRules">
           <el-form-item label="员工姓名" prop="name">
-            <el-input v-model="addForm.name"/>
+            <el-input v-model="addForm.name" />
           </el-form-item>
           <el-form-item label="登录账号" prop="userName">
-            <el-input v-model="addForm.userName"/>
+            <el-input v-model="addForm.userName" />
           </el-form-item>
           <el-form-item label="联系方式" prop="phonenumber">
-            <el-input v-model="addForm.phonenumber"/>
+            <el-input v-model="addForm.phonenumber" />
           </el-form-item>
           <el-descriptions>
             <el-descriptions-item label="默认密码">
@@ -210,13 +210,13 @@ export default {
             this.clearForm()
           }
         ).catch(
-        () => {
-          this.$message({
-            type: 'info',
-            message: '已取消关闭'
-          })
-        }
-      )
+          () => {
+            this.$message({
+              type: 'info',
+              message: '已取消关闭'
+            })
+          }
+        )
     },
     formatStatus(row) {
       return row.status === 1 ? '启用' : '禁用'
@@ -273,6 +273,8 @@ export default {
                 }
               )
             }
+          } else {
+            this.$message.info('请填写完整信息')
           }
         }
       )
