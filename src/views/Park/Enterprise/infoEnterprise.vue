@@ -85,7 +85,7 @@
               width="150"
             >
               <template #default="{row}">
-                <el-button type="text">
+                <el-button type="text" style="white-space: normal;">
                   <a :href="`${previewURL}${row.contractUrl}`" target="_blank">
                     {{ row.contractName }}
                   </a>

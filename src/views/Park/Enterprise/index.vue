@@ -83,9 +83,8 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    <!--:title="rentForm.type === 0 ? '添加合同' : '租赁合同'"-->
     <el-dialog
-      title="添加合同"
+      :title="rentForm.type === 0 ? '添加合同' : '续租合同'"
       width="480ox"
       :visible.sync="dialogVisible"
       :before-close="handleClose"
@@ -319,20 +318,21 @@ export default {
       this.buildingList = res.data
       this.rentForm.enterpriseId = id
     },
-    // async renewDialog(row) {
-    //   this.dialogVisible = true
-    //   const res = await getRentBuildListAPI()
-    //   this.buildingList = res.data
-    //   console.log('row:', row)
-    //   console.log('rentList:', this.rentList)
-    //   console.log('tableList:', this.tableList)
-    //   console.log('formList', this.formList)
-    //   this.rentForm = {
-    //     buildingId: row.buildingId,
-    //     type: 1,
-    //     rentTime: [row.startTime, row.endTime]
-    //   }
-    // },
+    async renewDialog(row) {
+      this.dialogVisible = true
+      const res = await getRentBuildListAPI()
+      this.buildingList = res.data
+      console.log('row:', row)
+      console.log('rentList:', this.rentList)
+      console.log('tableList:', this.tableList)
+      console.log('formList', this.formList)
+      this.rentForm = {
+        buildingId: row.buildingId,
+        type: 1,
+        enterpriseId: this.rentList.enterpriseId,
+        rentTime: [row.startTime, row.endTime]
+      }
+    },
     closeDialog() {
       this.dialogVisible = false
     },
@@ -385,41 +385,41 @@ export default {
             newForm.endTime = newForm.rentTime[1]
             delete newForm.rentTime
             // console.dir(newForm)
-            // if (newForm.type === 0) {
-            await createRentAPI(newForm).then(
-              () => {
-                this.$message({
-                  type: 'success',
-                  message: '添加成功'
-                })
-                this.closeDialog()
-                this.clearForm()
-                this.getList()
-              }
-            ).catch(
-              error => {
-                this.$message.error(error.response.data.msg)
-              }
-            )
-            // } else {
-            //   console.log(this.rentForm)
-            //   console.log(newForm)
-            //   await createRentAPI(newForm).then(
-            //     () => {
-            //       this.$message({
-            //         type: 'success',
-            //         message: '续租成功'
-            //       })
-            //       this.closeDialog()
-            //       this.clearForm()
-            //       this.getList()
-            //     }
-            //   ).catch(
-            //     error => {
-            //       this.$message.error(error.response.data.msg)
-            //     }
-            //   )
-            // }
+            if (newForm.type === 0) {
+              await createRentAPI(newForm).then(
+                () => {
+                  this.$message({
+                    type: 'success',
+                    message: '添加成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                  this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            } else {
+              console.log(this.rentForm)
+              console.log(newForm)
+              await createRentAPI(newForm).then(
+                () => {
+                  this.$message({
+                    type: 'success',
+                    message: '续租成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                  this.getList()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            }
           } else {
             this.$message.error('请完善信息')
           }
@@ -452,9 +452,10 @@ export default {
     },
     async expandHandle(row, rows) {
       // console.log('展开或关闭', JSON.stringify(row))
-      const isExpend = rows.find(item => item.id === row.id)
+      const isExpend = rows.find(item => item.id === row.id) // 企业id
       if (isExpend) {
         const res = await getRentListAPI(row.id)
+        // console.log('row.id', row.id)
         // .then(
         //   row.rentList = res.data
         // )
@@ -464,7 +465,10 @@ export default {
         // row.rentList = res.data
         // this.$set(row, 'rentList', res.data)
         this.rentList = res.data
-        console.log('rentList:', this.rentList)
+        // console.log('rentList:', this.rentList)
+        // console.log('enterpriseList', this.enterpriseList)
+        // console.log('tableList:', this.tableList)
+        this.rentList.enterpriseId = row.id
       }
     }
   }
