@@ -20,7 +20,30 @@
         element-loading-background="rgba(0, 0, 0, 0.3)"
         style="width: 100%"
         :data="tableList"
+        @expand-change="expandHandle"
       >
+        <el-table-column type="expand">
+          <template>
+            <el-table :data="rentList">
+              <el-table-column label="租赁楼宇" width="320" prop="buildingName" />
+              <el-table-column label="租赁起始时间" prop="startTime" />
+              <el-table-column label="合同状态">
+                <template #default="scope">
+                  <el-tag :type="formatInfoType(scope.row.status)">
+                    {{ formatStatus(scope.row.status) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="180">
+                <template #default="scope">
+                  <el-button size="mini" type="text">续租</el-button>
+                  <el-button size="mini" type="text">退租</el-button>
+                  <el-button size="mini" type="text">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
         <el-table-column type="index" label="序号" />
         <el-table-column label="企业名称" width="320" prop="name" sortable />
         <el-table-column label="联系人" prop="contact" sortable />
@@ -125,6 +148,7 @@ import {
   deleteEnterpriseAPI,
   getEnterpriseListAPI,
   getRentBuildListAPI,
+  getRentListAPI,
   uploadAPI
 } from '@/api/enterprise'
 
@@ -141,6 +165,7 @@ export default {
       },
       pageSizes: [2, 3, 5, 10, 15, 20, 30],
       total: 0,
+      rentList: [],
       formList: {
         name: null,
         contact: null,
@@ -220,6 +245,14 @@ export default {
       const res = await getEnterpriseListAPI(this.params)
       this.tableList = res.data.rows
       this.total = res.data.total
+      this.enterpriseList = res.data.rows.map(
+        item => {
+          return {
+            ...item,
+            rentList: []
+          }
+        }
+      )
       this.loadingFlag = false
     },
     doSearch() {
@@ -358,6 +391,43 @@ export default {
     },
     jumpToDetailEnterprise(id) {
       this.$router.push('/infoEnterprise?id=' + id)
+    },
+    // 格式化tag类型
+    formatInfoType(status) {
+      const MAP = {
+        0: 'warning',
+        1: 'success',
+        2: 'info',
+        3: 'danger'
+      }
+      // return 格式化之后的中文显示
+      return MAP[status]
+    },
+    // 格式化status
+    formatStatus(type) {
+      const TypeMAP = {
+        0: '待生效',
+        1: '生效中',
+        2: '已到期',
+        3: '已退租'
+      }
+      return TypeMAP[type]
+    },
+    async expandHandle(row, rows) {
+      // console.log('展开或关闭', JSON.stringify(row))
+      const isExpend = rows.find(item => item.id === row.id)
+      if (isExpend) {
+        const res = await getRentListAPI(row.id)
+        // .then(
+        //   row.rentList = res.data
+        // )
+        // eslint-disable-next-line require-atomic-updates
+        // this.$nextTick(
+        // () => {
+        // row.rentList = res.data
+        // this.$set(row, 'rentList', res.data)
+        this.rentList = res.data
+      }
     }
   }
 }

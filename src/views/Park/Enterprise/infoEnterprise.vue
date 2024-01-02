@@ -9,10 +9,45 @@
     <main class="add-main">
       <div class="form-container">
         <div class="title">企业信息</div>
+        <div class="des-container">
+          <el-descriptions :column="3" border>
+            <el-descriptions-item label="企业名称" label-class-name="my-label" content-class-name="my-content">
+              <el-input v-model="form.name" disabled />
+            </el-descriptions-item>
+            <el-descriptions-item label="法人">
+              <el-input v-model="form.legalPerson" disabled />
+            </el-descriptions-item>
+            <el-descriptions-item label="注册地址">
+              <el-input v-model="form.registeredAddress" disabled />
+            </el-descriptions-item>
+            <el-descriptions-item label="所在行业">
+              <el-input v-model="form.industryName" disabled />
+            </el-descriptions-item>
+            <el-descriptions-item label="营业执照">
+              <el-image
+                style="width: 100px; height: 100px"
+                :src="`${form.businessLicenseUrl}`"
+                :preview-src-list="srcList"
+                fit="contain"
+                lazy
+              />
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
       </div>
       <div class="spacer" />
-      <div class="form-container">
+      <div class="form2-container">
         <div class="title">联系人信息</div>
+        <div class="des-container">
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="企业联系人" label-class-name="my-label" content-class-name="my-content">
+              <el-input v-model="form.contact" disabled />
+            </el-descriptions-item>
+            <el-descriptions-item label="联系电话">
+              <el-input v-model="form.contactNumber" disabled />
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
       </div>
       <div class="spacer" />
       <div class="table-container">
@@ -75,6 +110,7 @@
             >
               <template #default="scope">
                 <el-button size="mini" type="text"><a :href="scope.row.contractUrl">合同下载</a></el-button>
+                <el-button size="mini" type="text" @click="outRent(scope.row.id)">续租</el-button>
                 <el-button size="mini" type="text" @click="outRent(scope.row.id)">退租</el-button>
                 <el-button size="mini" type="text" @click="deleteRent(scope.row.id)">删除</el-button>
               </template>
@@ -97,12 +133,14 @@ export default {
       loadingFlag: true,
       rentList: [],
       enterpriseList: [],
+      srcList: [],
       form: {
       },
       previewURL: 'https://view.officeapps.live.com/op/view.aspx?src='
     }
   },
   mounted() {
+    // const id = this.$route.query.id
     this.getDetail()
     this.getEnterpriseList()
   },
@@ -131,6 +169,10 @@ export default {
     async getDetail() {
       const res = await getEnterpriseDetail(this.$route.query.id)
       this.form = res.data
+      this.srcList = [
+        this.form.businessLicenseUrl
+      ]
+      // console.dir(this.form)
       this.loadingFlag = false
     },
     async refreshLoading() {
@@ -146,6 +188,7 @@ export default {
           rentList: [] // 每一行补充存放合同的列表
         }
       })
+      // console.dir(this.enterpriseList)
       this.total = res.data.total
       this.loadingFlag = false
     },
@@ -259,6 +302,32 @@ export default {
 
     .form-container {
       background-color: #fff;
+      height: 250px;
+
+      .title {
+        height: 60px;
+        line-height: 60px;
+        padding-left: 20px;
+      }
+
+      .form {
+        margin-bottom: 10px;
+        padding: 20px 65px 24px;
+
+        .el-form {
+          display: flex;
+          flex-wrap: wrap;
+
+          .el-form-item {
+            width: 50%;
+          }
+        }
+      }
+    }
+
+    .form2-container {
+      background-color: #fff;
+      height: 100px;
 
       .title {
         height: 60px;
