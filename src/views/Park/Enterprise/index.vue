@@ -36,7 +36,7 @@
               </el-table-column>
               <el-table-column label="操作" width="180">
                 <template #default="scope">
-                  <el-button size="mini" type="text">续租</el-button>
+                  <el-button size="mini" type="text" @click="renewDialog(scope.row)">续租</el-button>
                   <el-button size="mini" type="text">退租</el-button>
                   <el-button size="mini" type="text">删除</el-button>
                 </template>
@@ -83,11 +83,13 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <!--:title="rentForm.type === 0 ? '添加合同' : '租赁合同'"-->
     <el-dialog
       title="添加合同"
       width="480ox"
       :visible.sync="dialogVisible"
       :before-close="handleClose"
+      :after-leave="clearForm"
       center
     >
       <!-- 表单接口 -->
@@ -128,7 +130,7 @@
               multiple
             >
               <el-button icon="el-icon-upload" size="small" type="primary" plain>上传合同文件</el-button>
-              <div slot="tip" class="el-upload__tip">支持扩展名：.doc .docx .pdf, 文件大小不超过5M</div>
+              <div slot="tip" class="el-upload__tip">支持扩展名：.rar、.zip、.doc、.docx、.pdf, 文件大小不超过5M</div>
             </el-upload>
           </el-form-item>
         </el-form>
@@ -173,9 +175,9 @@ export default {
       },
       rentForm: {
         buildingId: null, // 楼宇id
-        contractId: null, // 合同id
+        contractId: '', // 合同id
         contractUrl: '', // 合同Url
-        enterpriseId: null, // 企业名称
+        enterpriseId: '', // 企业名称
         type: 0, // 合同类型
         rentTime: [] // 合同时间
       },
@@ -187,7 +189,10 @@ export default {
           { required: true, message: '请选择租赁日期', trigger: 'change' }
         ],
         contractId: [
-          { required: true, message: '请上传合同文件' }
+          { required: true, message: '请上传合同文件', trigger: 'change' }
+        ],
+        enterpriseId: [
+          { required: true, message: '请确认企业名称', trigger: 'change' }
         ]
       },
       buildingList: [],
@@ -314,6 +319,20 @@ export default {
       this.buildingList = res.data
       this.rentForm.enterpriseId = id
     },
+    // async renewDialog(row) {
+    //   this.dialogVisible = true
+    //   const res = await getRentBuildListAPI()
+    //   this.buildingList = res.data
+    //   console.log('row:', row)
+    //   console.log('rentList:', this.rentList)
+    //   console.log('tableList:', this.tableList)
+    //   console.log('formList', this.formList)
+    //   this.rentForm = {
+    //     buildingId: row.buildingId,
+    //     type: 1,
+    //     rentTime: [row.startTime, row.endTime]
+    //   }
+    // },
     closeDialog() {
       this.dialogVisible = false
     },
@@ -346,15 +365,13 @@ export default {
       // this.$refs.rentForm.validateField('contractId')
     },
     beforeUpload(file) {
-      const isAllowedType = /\.(doc|docx|pdf)$/i.test(file.name)
+      const isAllowedType = /\.(rar|zip|doc|docx|pdf)$/i.test(file.name)
       const isSizeOK = file.size / 1024 / 1024 < 5
-
       if (!isAllowedType) {
         this.$message.error('仅支持上传 .doc、.docx 和 .pdf 文件!')
       } else if (!isSizeOK) {
         this.$message.error('上传文件大小不能超过 5 MB!')
       }
-
       return isAllowedType && isSizeOK
     },
     confirmAdd() {
@@ -368,6 +385,7 @@ export default {
             newForm.endTime = newForm.rentTime[1]
             delete newForm.rentTime
             // console.dir(newForm)
+            // if (newForm.type === 0) {
             await createRentAPI(newForm).then(
               () => {
                 this.$message({
@@ -383,6 +401,25 @@ export default {
                 this.$message.error(error.response.data.msg)
               }
             )
+            // } else {
+            //   console.log(this.rentForm)
+            //   console.log(newForm)
+            //   await createRentAPI(newForm).then(
+            //     () => {
+            //       this.$message({
+            //         type: 'success',
+            //         message: '续租成功'
+            //       })
+            //       this.closeDialog()
+            //       this.clearForm()
+            //       this.getList()
+            //     }
+            //   ).catch(
+            //     error => {
+            //       this.$message.error(error.response.data.msg)
+            //     }
+            //   )
+            // }
           } else {
             this.$message.error('请完善信息')
           }
@@ -427,6 +464,7 @@ export default {
         // row.rentList = res.data
         // this.$set(row, 'rentList', res.data)
         this.rentList = res.data
+        console.log('rentList:', this.rentList)
       }
     }
   }
