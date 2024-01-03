@@ -31,7 +31,7 @@
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <el-button-group>
-              <el-button size="mini" type="text">查看</el-button>
+              <el-button size="mini" type="text" @click="showRule(scope.row.id)">查看</el-button>
               <el-button size="mini" type="text" @close="clearForm" @click="updateRule(scope.row)">编辑</el-button>
               <el-button size="mini" type="text" @click="deleteRule(scope.row.id)">删除</el-button>
             </el-button-group>
@@ -40,7 +40,7 @@
       </el-table>
     </div>
     <el-dialog
-      :title="addForm.id ? '编辑停车计费规则' : '添加停车计费规则'"
+      :title="titleString"
       :visible.sync="dialogVisible"
       width="50%"
       class="dialog-container"
@@ -51,13 +51,13 @@
       <div class="form-container">
         <el-form ref="addForm" :model="addForm" :rules="addFormRules" label-position="top">
           <el-form-item label="计费规则编号" prop="ruleNumber">
-            <el-input v-model="addForm.ruleNumber" />
+            <el-input v-model="addForm.ruleNumber" :disabled="dialogUpdate" />
           </el-form-item>
           <el-form-item label="计费规则名称" prop="ruleName">
-            <el-input v-model="addForm.ruleName" />
+            <el-input v-model="addForm.ruleName" :disabled="dialogUpdate" />
           </el-form-item>
           <el-form-item label="计费方式" prop="chargeType">
-            <el-radio-group v-model="addForm.chargeType" size="small">
+            <el-radio-group v-model="addForm.chargeType" size="small" :disabled="dialogUpdate">
               <el-radio label="duration" border>时长收费</el-radio>
               <el-radio label="turn" border>按次收费</el-radio>
               <el-radio label="partition" border>分段收费</el-radio>
@@ -65,34 +65,41 @@
           </el-form-item>
           <div class="flex-container">
             <el-form-item label="免费时长" prop="freeDuration">
-              <el-input v-model="addForm.freeDuration" />
+              <el-input v-model="addForm.freeDuration" :disabled="dialogUpdate" />
             </el-form-item>
             <el-form-item label="收费上限" prop="chargeCeiling">
-              <el-input v-model="addForm.chargeCeiling" />
+              <el-input v-model="addForm.chargeCeiling" :disabled="dialogUpdate" />
             </el-form-item>
           </div>
           <el-form-item label="计费规则">
             <!-- 按时长收费区域 -->
-            <div v-if="addForm.chargeType === 'duration'" class="duration">
-              每 <el-input v-model="addForm.durationTime" class="input-box" /> 小时 <el-input v-model="addForm.durationPrice" class="input-box" /> 元
-            </div>
+            <el-form-item v-if="addForm.chargeType === 'duration'" class="duration" prop="chargeType">
+              每
+              <el-input v-model="addForm.durationTime" class="input-box" :disabled="dialogUpdate" />
+              <el-select v-model="addForm.durationType" placeholder="单位" style="width: 100px" :disabled="dialogUpdate">
+                <el-option label="小时" value="hour" />
+                <el-option label="分钟" value="minute" />
+              </el-select>
+              <el-input v-model="addForm.durationPrice" class="input-box" :disabled="dialogUpdate" />
+              元
+            </el-form-item>
             <!-- 按次收费区域 -->
-            <div v-if="addForm.chargeType === 'turn'" class="turn">
-              每次 <el-input v-model="addForm.turnPrice" class="input-box" /> 元
-            </div>
+            <el-form-item v-if="addForm.chargeType === 'turn'" class="turn" prop="chargeType">
+              每次 <el-input v-model="addForm.turnPrice" class="input-box" :disabled="dialogUpdate" /> 元
+            </el-form-item>
             <!-- 按分段收费区域 -->
-            <div v-if="addForm.chargeType==='partition'" class="partition">
-              <div class="item"><el-input v-model="addForm.partitionFrameTime" class="input-box" />小时内,每小时收费<el-input v-model="addForm.partitionFramePrice" class="input-box" /> 元</div>
-              <div class="item">每增加<el-input v-model="addForm.partitionIncreaseTime" class="input-box" />小时,增加<el-input v-model="addForm.partitionIncreasePrice" class="input-box" /> 元</div>
-            </div>
+            <el-form-item v-if="addForm.chargeType==='partition'" class="partition" prop="chargeType">
+              <div class="item"><el-input v-model="addForm.partitionFrameTime" class="input-box" :disabled="dialogUpdate" />小时内,每小时收费<el-input v-model="addForm.partitionFramePrice" class="input-box" :disabled="dialogUpdate" /> 元</div>
+              <div class="item">每增加<el-input v-model="addForm.partitionIncreaseTime" class="input-box" :disabled="dialogUpdate" />小时,增加<el-input v-model="addForm.partitionIncreasePrice" class="input-box" :disabled="dialogUpdate" /> 元</div>
+            </el-form-item>
           </el-form-item>
         </el-form>
       </div>
       <template #footer>
         <el-button-group>
-          <el-button size="medium" type="warning" @click="clearForm">重置</el-button>
+          <el-button size="medium" type="warning" @click="clearForm" :disabled="dialogUpdate">重 置</el-button>
           <el-button size="medium" type="danger" @click="handleClose">取 消</el-button>
-          <el-button size="medium" type="primary" @click="confirmAdd">确 定</el-button>
+          <el-button size="medium" type="primary" @click="confirmAdd" :disabled="dialogUpdate">确 定</el-button>
         </el-button-group>
       </template>
     </el-dialog>
@@ -115,16 +122,17 @@ export default {
       total: 0,
       dialogVisible: false,
       loadingFlag: true,
+      dialogUpdate: false,
       addForm: {
         ruleNumber: '', // 计费规则编号
         ruleName: '', // 计费规则名称
-        chargeType: 'duration', // 计费规则类型 duration / turn / partition
+        chargeType: null, // 计费规则类型 duration / turn / partition
         chargeCeiling: null,
         freeDuration: null,
         // 时长计费独有字段
         durationTime: null, // 时长计费单位时间
         durationPrice: null, // 时长计费单位价格
-        durationType: 'hour',
+        durationType: null, // hour minute
         // 按次收费独有字段
         turnPrice: null,
         // 分段计费独有字段
@@ -176,6 +184,17 @@ export default {
     await this.getList()
     // const dropList = await getRuleDropListAPI()
     // console.dir(dropList)
+  },
+  computed: {
+    titleString() {
+      if (this.dialogUpdate) {
+        return '查看停车计费规则'
+      } else if (this.addForm.id) {
+        return '编辑停车计费规则'
+      } else {
+        return '添加停车计费规则'
+      }
+    }
   },
   methods: {
     async getList() {
@@ -233,6 +252,23 @@ export default {
     },
     clearForm() {
       this.$refs.addForm.resetFields()
+      // reset 无法完全清理，只能强制覆盖
+      this.addForm = {
+        id: null,
+        ruleNumber: '',
+        ruleName: '',
+        chargeType: null,
+        chargeCeiling: null,
+        freeDuration: null,
+        durationTime: null,
+        durationPrice: null,
+        durationType: null,
+        turnPrice: null,
+        partitionFrameTime: null,
+        partitionFramePrice: null,
+        partitionIncreaseTime: null,
+        partitionIncreasePrice: null
+      }
     },
     async refreshLoading() {
       this.loadingFlag = true
@@ -244,22 +280,27 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
         center: true
-      })
-        .then(
-          () => {
-            this.closeDialog()
-            this.clearForm()
-          }
-        ).catch(
-          () => {
-            this.$message({
-              type: 'info',
-              message: '已取消关闭'
-            })
-          }
-        )
+      }).then(
+        () => {
+          this.closeDialog()
+          this.clearForm()
+          this.dialogUpdate = false
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消关闭'
+          })
+        }
+      )
     },
     confirmAdd() {
+      if (this.addForm.id) {
+        console.log('编辑')
+      } else {
+        console.log('添加')
+      }
       this.$refs.addForm.validate(
         async valid => {
           if (valid) {
@@ -345,11 +386,20 @@ export default {
       this.openDialog()
       // console.log('row:', row)
       const res = await getRuleDetailAPI(row.id)
-      console.log('detail', res.data)
+      // console.log('detail', res.data)
       this.addForm = {
         ...res.data
       }
-      console.log('addForm', this.addForm)
+      // console.log('addForm', this.addForm)
+    },
+    async showRule(id) {
+      this.openDialog()
+      this.dialogUpdate = true
+      const res = await getRuleDetailAPI(id)
+      // console.log('res.data', res.data)
+      this.addForm = {
+        ...res.data
+      }
     }
   }
 }
