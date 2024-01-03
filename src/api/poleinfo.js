@@ -8,6 +8,13 @@ export function getPoleInfoListAPI(params) {
   })
 }
 
+export function getRoleInfoDetailAPI(id) {
+  return request({
+    url: `/pole/info/${id}`,
+    method: 'GET'
+  })
+}
+
 export function createPoleInfoAPI(data) {
   return request({
     url: '/pole/info',

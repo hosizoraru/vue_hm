@@ -47,7 +47,7 @@
         <el-table-column label="运行状态" prop="poleStatus" sortable :formatter="formatPoleStatus" />
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
-            <el-button size="mini" type="text" @close="clearForm" @click="showPole(scope.row)">查看</el-button>
+            <el-button size="mini" type="text" @click="showPole(scope.row)">查看</el-button>
             <el-button size="mini" type="text" @close="clearForm" @click="updatePole(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="deletePole(scope.row.id)">删除</el-button>
           </template>
@@ -88,7 +88,7 @@
             <el-input v-model="form.poleIp" :disabled="dialogUpdate" />
           </el-form-item>
           <el-form-item label="关联区域" prop="areaId">
-            <el-select v-model="form.areaId" placeholder="请选择关联区域">
+            <el-select v-model="form.areaId" placeholder="请选择关联区域" :disabled="dialogUpdate">
               <el-option
                 v-for="item in areaDropList"
                 :key="item.areaId"
@@ -98,7 +98,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="一体杆类型" prop="poleType">
-            <el-select v-model="form.poleType" placeholder="请选择关联区域">
+            <el-select v-model="form.poleType" placeholder="请选择关联区域" :disabled="dialogUpdate">
               <el-option
                 v-for="item in poleTypeList"
                 :key="item.id"
@@ -123,7 +123,7 @@
 <script>
 
 import item from '@/layout/components/Sidebar/Item.vue'
-import { createPoleInfoAPI, deletePoleInfoAPI, getPoleInfoListAPI } from '@/api/poleinfo'
+import { createPoleInfoAPI, deletePoleInfoAPI, getPoleInfoListAPI, updatePoleInfoAPI } from '@/api/poleinfo'
 import { getAreaDropListAPI } from '@/api/area'
 
 export default {
@@ -320,7 +320,21 @@ export default {
         async valid => {
           if (valid) {
             if (this.form.id) {
-
+              await updatePoleInfoAPI(this.form).then(
+                async() => {
+                  await this.getList()
+                  this.$message({
+                    type: 'success',
+                    message: '编辑成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
             } else {
               const newForm = {
                 poleName: this.form.poleName,
@@ -353,13 +367,38 @@ export default {
     },
     clearForm() {
       this.$refs.form.resetFields()
+      this.form = {
+        id: null,
+        poleName: null,
+        poleNumber: null,
+        poleIp: null,
+        areaName: null,
+        areaId: null,
+        poleType: null,
+        poleStatus: null
+      }
     },
     async updatePole(row) {
       this.openDialog()
+      console.log('row', row)
+      this.form = {
+        id: row.id,
+        poleName: row.poleName,
+        poleNumber: row.poleNumber,
+        poleIp: row.poleIp,
+        areaId: row.areaId,
+        poleType: row.poleType
+      }
     },
-    async showPole(row) {
+    showPole(row) {
       this.openDialog()
       this.dialogUpdate = true
+      // const res = await getRoleInfoDetailAPI(row.id)
+      console.log('row', row)
+      this.form = {
+        ...row
+      }
+      // console.log('res', res)
     },
     handleClose() {
       this.$confirm('确认关闭？').then(
