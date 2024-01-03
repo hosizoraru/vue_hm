@@ -37,8 +37,8 @@
               <el-table-column label="操作" width="180">
                 <template #default="scope">
                   <el-button size="mini" type="text" @click="renewDialog(scope.row)">续租</el-button>
-                  <el-button size="mini" type="text">退租</el-button>
-                  <el-button size="mini" type="text">删除</el-button>
+                  <el-button size="mini" type="text" :disabled="scope.row.status === 3" @click="outRent(scope.row.id)">退租</el-button>
+                  <el-button size="mini" type="text" :disabled="scope.row.status !== 3" @click="deleteRent(scope.row.id)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -147,9 +147,11 @@
 import {
   createRentAPI,
   deleteEnterpriseAPI,
+  deleteRentAPI,
   getEnterpriseListAPI,
   getRentBuildListAPI,
   getRentListAPI,
+  outRentAPI,
   uploadAPI
 } from '@/api/enterprise'
 
@@ -470,6 +472,68 @@ export default {
         // console.log('tableList:', this.tableList)
         this.rentList.enterpriseId = row.id
       }
+    },
+    outRent(id) {
+      this.$confirm('确认退租吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(
+        async() => {
+          await outRentAPI(id).then(
+            async() => {
+              this.$message({
+                type: 'success',
+                message: '退租成功'
+              })
+              await this.getList()
+            }
+          ).catch(
+            error => {
+              this.$message.error(error.response.data.msg)
+            }
+          )
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消退租'
+          })
+        }
+      )
+    },
+    deleteRent(id) {
+      this.$confirm('确认删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(
+        async() => {
+          await deleteRentAPI(id).then(
+            async() => {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              await this.getList()
+            }
+          ).catch(
+            error => {
+              this.$message.error(error.response.data.msg)
+            }
+          )
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
+      )
     }
   }
 }

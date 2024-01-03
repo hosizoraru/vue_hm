@@ -110,7 +110,7 @@
             >
               <template #default="scope">
                 <el-button size="mini" type="text"><a :href="scope.row.contractUrl">合同下载</a></el-button>
-                <el-button size="mini" type="text" @click="renewRent(scope.row)">续租</el-button>
+                <!--<el-button size="mini" type="text" @click="renewRent(scope.row)">续租</el-button>-->
                 <el-button size="mini" type="text" @click="outRent(scope.row.id)">退租</el-button>
                 <el-button size="mini" type="text" @click="deleteRent(scope.row.id)">删除</el-button>
               </template>
@@ -187,7 +187,6 @@ import {
   deleteRentAPI,
   getEnterpriseDetail,
   getEnterpriseListAPI,
-  getRentBuildListAPI,
   outRentAPI,
   uploadAPI
 } from '@/api/enterprise'
@@ -365,20 +364,20 @@ export default {
       }
       return isAllowedType && isSizeOK
     },
-    async renewRent(row) {
-      this.dialogVisible = true
-      const res = await getRentBuildListAPI()
-      this.buildingList = res.data
-      console.dir(this.$route.query.id)
-      console.dir(row)
-      console.log('buildingName', row.name)
-      console.dir(this.buildingList)
-      this.rentForm = {
-        type: 1,
-        rentTime: [row.startTime, row.endTime], // 合同时间
-        enterpriseId: this.$route.query.id // 企业名称
-      }
-    },
+    // async renewRent(row) {
+    //   this.dialogVisible = true
+    //   const res = await getRentBuildListAPI()
+    //   this.buildingList = res.data
+    //   console.dir(this.$route.query.id)
+    //   console.dir(row)
+    //   console.log('buildingName', row.name)
+    //   console.dir(this.buildingList)
+    //   this.rentForm = {
+    //     type: 1,
+    //     rentTime: [row.startTime, row.endTime], // 合同时间
+    //     enterpriseId: this.$route.query.id // 企业名称
+    //   }
+    // },
     confirmAdd() {
       this.$refs.rentForm.validate(
         async valid => {
