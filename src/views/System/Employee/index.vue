@@ -139,7 +139,7 @@ export default {
         roleId: null,
         roleName: '',
         password: '123456',
-        status: 1
+        status: null
       },
       addFormRules: {
         name: [
@@ -236,6 +236,15 @@ export default {
     },
     clearForm() {
       this.$refs.addForm.resetFields()
+      this.addForm = {
+        name: '',
+        userName: '',
+        phonenumber: '',
+        roleId: null,
+        roleName: '',
+        password: '123456',
+        status: null
+      }
     },
     async confirmAdd() {
       this.$refs.addForm.validate(
