@@ -12,6 +12,7 @@ import request from '@/utils/request'
 export function getRuleListAPI(params) {
   return request({
     url: 'parking/rule/list',
+    method: 'GET',
     params
   })
 }
