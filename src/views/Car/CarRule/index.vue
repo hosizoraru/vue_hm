@@ -296,11 +296,11 @@ export default {
       )
     },
     confirmAdd() {
-      if (this.addForm.id) {
-        console.log('编辑')
-      } else {
-        console.log('添加')
-      }
+      // if (this.addForm.id) {
+      //   console.log('编辑')
+      // } else {
+      //   console.log('添加')
+      // }
       this.$refs.addForm.validate(
         async valid => {
           if (valid) {

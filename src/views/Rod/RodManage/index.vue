@@ -47,8 +47,8 @@
         <el-table-column label="运行状态" prop="poleStatus" sortable :formatter="formatPoleStatus" />
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
-            <el-button size="mini" @close="clearForm" type="text" @click="showPole(scope.row)">查看</el-button>
-            <el-button size="mini" @close="clearForm" type="text" @click="updatePole(scope.row)">编辑</el-button>
+            <el-button size="mini" type="text" @close="clearForm" @click="showPole(scope.row)">查看</el-button>
+            <el-button size="mini" type="text" @close="clearForm" @click="updatePole(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="deletePole(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -85,17 +85,27 @@
             <el-input v-model="form.poleNumber" :disabled="dialogUpdate" />
           </el-form-item>
           <el-form-item label="一体杆IP" prop="poleIp">
-            <el-radio-group v-model="form.poleIp" size="small" :disabled="dialogUpdate">
-              <el-radio label="duration" border>时长收费</el-radio>
-              <el-radio label="turn" border>按次收费</el-radio>
-              <el-radio label="partition" border>分段收费</el-radio>
-            </el-radio-group>
+            <el-input v-model="form.poleIp" :disabled="dialogUpdate" />
           </el-form-item>
           <el-form-item label="关联区域" prop="areaId">
-            <el-input v-model="form.areaId" :disabled="dialogUpdate" />
+            <el-select v-model="form.areaId" placeholder="请选择关联区域">
+              <el-option
+                v-for="item in areaDropList"
+                :key="item.areaId"
+                :value="item.areaId"
+                :label="item.areaName"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item label="一体杆类型" prop="poleType">
-            <el-input v-model="form.poleType" :disabled="dialogUpdate" />
+            <el-select v-model="form.poleType" placeholder="请选择关联区域">
+              <el-option
+                v-for="item in poleTypeList"
+                :key="item.id"
+                :value="item.id"
+                :label="item.name"
+              />
+            </el-select>
           </el-form-item>
         </el-form>
       </div>
@@ -113,7 +123,7 @@
 <script>
 
 import item from '@/layout/components/Sidebar/Item.vue'
-import { deletePoleInfoAPI, getPoleInfoListAPI } from '@/api/poleinfo'
+import { createPoleInfoAPI, deletePoleInfoAPI, getPoleInfoListAPI } from '@/api/poleinfo'
 import { getAreaDropListAPI } from '@/api/area'
 
 export default {
@@ -221,7 +231,7 @@ export default {
       this.getList()
     },
     deletePole(id) {
-      this.$confirm('此操作将永久删除该月卡信息, 是否继续?', '提示', {
+      this.$confirm('确定删除该一体杆？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -253,8 +263,8 @@ export default {
     },
     deletePoles() {
       this.$confirm('', {
-        message: `已选择 ${this.selectCardList.length} 个月卡`,
-        title: '此操作将永久删除选择的月卡, 是否继续?',
+        message: `已选择 ${this.selectCardList.length} 个一体杆`,
+        title: '此操作将永久删除选择的一体杆, 是否继续?',
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -299,6 +309,47 @@ export default {
       this.dialogVisible = false
     },
     confirmAdd() {
+      if (this.form.id) {
+        console.log('编辑')
+        console.log('form:', this.form)
+      } else {
+        console.log('添加')
+        console.log('form:', this.form)
+      }
+      this.$refs.form.validate(
+        async valid => {
+          if (valid) {
+            if (this.form.id) {
+
+            } else {
+              const newForm = {
+                poleName: this.form.poleName,
+                poleNumber: this.form.poleNumber,
+                poleIp: this.form.poleIp,
+                areaId: this.form.areaId,
+                poleType: this.form.poleType
+              }
+              await createPoleInfoAPI(newForm).then(
+                async() => {
+                  await this.getList()
+                  this.$message({
+                    type: 'success',
+                    message: '添加成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                }
+              ).catch(
+                error => {
+                  this.$message.error(error.response.data.msg)
+                }
+              )
+            }
+          } else {
+            this.$message.error('请检查输入内容')
+          }
+        }
+      )
     },
     clearForm() {
       this.$refs.form.resetFields()
@@ -308,15 +359,16 @@ export default {
     },
     async showPole(row) {
       this.openDialog()
+      this.dialogUpdate = true
     },
     handleClose() {
-      this.$confirm('确认关闭？')
-        .then(
-          () => {
-            this.closeDialog()
-            this.clearForm()
-          }
-        ).catch(
+      this.$confirm('确认关闭？').then(
+        () => {
+          this.closeDialog()
+          this.clearForm()
+          this.dialogUpdate = false
+        }
+      ).catch(
         () => {
           this.$message({
             type: 'info',
@@ -375,6 +427,22 @@ export default {
 }
 
 .form-container {
-  padding: 0 80px;
+  padding: 20px 80px;
+}
+
+.dialog-container {
+  max-height: 100vh; /* 设置最大高度，以免对话框过长 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.input-box {
+  width: 80px; /* 调整输入框的宽度，可以根据需要进行更改 */
 }
 </style>
