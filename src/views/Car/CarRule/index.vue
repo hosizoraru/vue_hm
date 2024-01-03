@@ -97,9 +97,9 @@
       </div>
       <template #footer>
         <el-button-group>
-          <el-button size="medium" type="warning" @click="clearForm" :disabled="dialogUpdate">重 置</el-button>
+          <el-button size="medium" type="warning" :disabled="dialogUpdate" @click="clearForm">重 置</el-button>
           <el-button size="medium" type="danger" @click="handleClose">取 消</el-button>
-          <el-button size="medium" type="primary" @click="confirmAdd" :disabled="dialogUpdate">确 定</el-button>
+          <el-button size="medium" type="primary" :disabled="dialogUpdate" @click="confirmAdd">确 定</el-button>
         </el-button-group>
       </template>
     </el-dialog>
@@ -180,11 +180,6 @@ export default {
       } // 计费规则校验规则对象
     }
   },
-  async mounted() {
-    await this.getList()
-    // const dropList = await getRuleDropListAPI()
-    // console.dir(dropList)
-  },
   computed: {
     titleString() {
       if (this.dialogUpdate) {
@@ -195,6 +190,11 @@ export default {
         return '添加停车计费规则'
       }
     }
+  },
+  async mounted() {
+    await this.getList()
+    // const dropList = await getRuleDropListAPI()
+    // console.dir(dropList)
   },
   methods: {
     async getList() {
