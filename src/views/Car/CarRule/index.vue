@@ -32,7 +32,7 @@
           <template #default="scope">
             <el-button-group>
               <el-button size="mini" type="text">查看</el-button>
-              <el-button size="mini" type="text">编辑</el-button>
+              <el-button size="mini" type="text" @close="clearForm" @click="updateRule(scope.row)">编辑</el-button>
               <el-button size="mini" type="text" @click="deleteRule(scope.row.id)">删除</el-button>
             </el-button-group>
           </template>
@@ -40,9 +40,9 @@
       </el-table>
     </div>
     <el-dialog
+      :title="addForm.id ? '编辑停车计费规则' : '添加停车计费规则'"
       :visible.sync="dialogVisible"
       width="50%"
-      title="新增规则"
       class="dialog-container"
       :before-close="handleClose"
       center
@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { createRuleAPI, deleteRuleAPI, getRuleListAPI } from '@/api/carRule'
+import { createRuleAPI, deleteRuleAPI, getRuleDetailAPI, getRuleListAPI, updateRuleAPI } from '@/api/carRule'
 import { utils, writeFileXLSX } from 'xlsx'
 
 export default {
@@ -263,30 +263,50 @@ export default {
       this.$refs.addForm.validate(
         async valid => {
           if (valid) {
-            await createRuleAPI(this.addForm).then(
-              async() => {
-                await this.getList()
-                this.$message({
-                  type: 'success',
-                  message: '添加成功'
-                })
-                this.closeDialog()
-                this.clearForm()
-              }
-            ).catch(
-              error => {
-                this.$message({
-                  type: 'error',
-                  message: error.response.data.msg
-                })
-              }
-            )
+            if (this.addForm.id) {
+              await updateRuleAPI(this.addForm).then(
+                async() => {
+                  await this.getList()
+                  this.$message({
+                    type: 'success',
+                    message: '编辑成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                }
+              ).catch(
+                error => {
+                  this.$message({
+                    type: 'error',
+                    message: error.response.data.msg
+                  })
+                }
+              )
+            } else {
+              await createRuleAPI(this.addForm).then(
+                async() => {
+                  await this.getList()
+                  this.$message({
+                    type: 'success',
+                    message: '添加成功'
+                  })
+                  this.closeDialog()
+                  this.clearForm()
+                }
+              ).catch(
+                error => {
+                  this.$message({
+                    type: 'error',
+                    message: error.response.data.msg
+                  })
+                }
+              )
+            }
           } else {
             this.$message({
               type: 'error',
-              message: '添加失败'
+              message: '请检查表单内容'
             })
-            return false
           }
         }
       )
@@ -320,6 +340,16 @@ export default {
             })
           }
         )
+    },
+    async updateRule(row) {
+      this.openDialog()
+      // console.log('row:', row)
+      const res = await getRuleDetailAPI(row.id)
+      console.log('detail', res.data)
+      this.addForm = {
+        ...res.data
+      }
+      console.log('addForm', this.addForm)
     }
   }
 }

@@ -36,7 +36,7 @@
               </el-table-column>
               <el-table-column label="操作" width="180">
                 <template #default="scope">
-                  <el-button size="mini" type="text" @click="renewDialog(scope.row)">续租</el-button>
+                  <el-button size="mini" type="text" @close="clearForm" @click="renewDialog(scope.row)">续租</el-button>
                   <el-button size="mini" type="text" :disabled="scope.row.status === 3" @click="outRent(scope.row.id)">退租</el-button>
                   <el-button size="mini" type="text" :disabled="scope.row.status !== 3" @click="deleteRent(scope.row.id)">删除</el-button>
                 </template>
