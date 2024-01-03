@@ -12,7 +12,7 @@ export function getAreaListAPI(params) {
   })
 }
 
-export function getAreaDropListAPI(page, size) {
+export function getAreaDropListAPI() {
   return request({
     url: '/parking/area/dropList',
     method: 'get'

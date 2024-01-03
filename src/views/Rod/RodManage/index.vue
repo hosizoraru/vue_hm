@@ -47,8 +47,8 @@
         <el-table-column label="运行状态" prop="poleStatus" sortable :formatter="formatPoleStatus" />
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
-            <el-button size="mini" @close="clearForm" type="text">查看</el-button>
-            <el-button size="mini" @close="clearForm" type="text">编辑</el-button>
+            <el-button size="mini" @close="clearForm" type="text" @click="showPole(scope.row)">查看</el-button>
+            <el-button size="mini" @close="clearForm" type="text" @click="updatePole(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="deletePole(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -67,6 +67,46 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <el-dialog
+      :title="titleString"
+      :visible.sync="dialogVisible"
+      width="50%"
+      class="dialog-container"
+      :before-close="handleClose"
+      center
+    >
+      <!-- 表单接口 -->
+      <div class="form-container">
+        <el-form ref="form" :model="form" :rules="formRules" label-position="top">
+          <el-form-item label="一体杆名称" prop="poleName">
+            <el-input v-model="form.poleName" :disabled="dialogUpdate" />
+          </el-form-item>
+          <el-form-item label="一体杆编号" prop="poleNumber">
+            <el-input v-model="form.poleNumber" :disabled="dialogUpdate" />
+          </el-form-item>
+          <el-form-item label="一体杆IP" prop="poleIp">
+            <el-radio-group v-model="form.poleIp" size="small" :disabled="dialogUpdate">
+              <el-radio label="duration" border>时长收费</el-radio>
+              <el-radio label="turn" border>按次收费</el-radio>
+              <el-radio label="partition" border>分段收费</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="关联区域" prop="areaId">
+            <el-input v-model="form.areaId" :disabled="dialogUpdate" />
+          </el-form-item>
+          <el-form-item label="一体杆类型" prop="poleType">
+            <el-input v-model="form.poleType" :disabled="dialogUpdate" />
+          </el-form-item>
+        </el-form>
+      </div>
+      <template #footer>
+        <el-button-group>
+          <el-button size="medium" type="warning" :disabled="dialogUpdate" @click="clearForm">重 置</el-button>
+          <el-button size="medium" type="danger" @click="handleClose">取 消</el-button>
+          <el-button size="medium" type="primary" :disabled="dialogUpdate" @click="confirmAdd">确 定</el-button>
+        </el-button-group>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -74,6 +114,7 @@
 
 import item from '@/layout/components/Sidebar/Item.vue'
 import { deletePoleInfoAPI, getPoleInfoListAPI } from '@/api/poleinfo'
+import { getAreaDropListAPI } from '@/api/area'
 
 export default {
   data() {
@@ -103,6 +144,23 @@ export default {
         poleType: null,
         poleStatus: null
       },
+      formRules: {
+        poleName: [
+          { required: true, message: '请输入一体杆名称', trigger: 'blur' }
+        ],
+        poleNumber: [
+          { required: true, message: '请输入一体杆编号', trigger: 'blur' }
+        ],
+        poleIp: [
+          { required: true, message: '请输入一体杆IP', trigger: 'blur' }
+        ],
+        areaId: [
+          { required: true, message: '请输入关联区域 ID', trigger: 'blur' }
+        ],
+        poleType: [
+          { required: true, message: '请选择一体杆类型', trigger: 'change' }
+        ]
+      },
       poleStatusList: [
         { id: null, name: '全部' },
         { id: 0, name: '正常' },
@@ -113,16 +171,27 @@ export default {
         { id: 'export', name: '出口' },
         { id: 'center', name: '中心' }
       ],
-      selectList: []
+      selectList: [],
+      areaDropList: []
     }
   },
   computed: {
     item() {
       return item
+    },
+    titleString() {
+      if (this.dialogUpdate) {
+        return '查看一体杆'
+      } else if (this.form.id) {
+        return '编辑一体杆'
+      } else {
+        return '添加一体杆'
+      }
     }
   },
-  mounted() {
-    this.getList()
+  async mounted() {
+    await this.getList()
+    await this.getAreaDropList()
   },
   methods: {
     async getList() {
@@ -130,6 +199,11 @@ export default {
       this.list = res.data.rows
       this.total = res.data.total
       this.loadingFlag = false
+    },
+    async getAreaDropList() {
+      const res = await getAreaDropListAPI()
+      this.areaDropList = res.data
+      // console.log('areaDropList', this.areaDropList)
     },
     handleSelectionChange(val) {
       this.selectCardList = val
@@ -208,6 +282,7 @@ export default {
     async refreshLoading() {
       this.loadingFlag = true
       await this.getList()
+      await this.getAreaDropList()
     },
     formatPoleStatus(row, column, cellValue) {
       const status = this.poleStatusList.find(item => item.id === cellValue)
@@ -218,14 +293,21 @@ export default {
       return type ? type.name : '---'
     },
     openDialog() {
+      this.dialogVisible = true
     },
     closeDialog() {
+      this.dialogVisible = false
     },
     confirmAdd() {
     },
     clearForm() {
+      this.$refs.form.resetFields()
     },
-    updatePole(id) {
+    async updatePole(row) {
+      this.openDialog()
+    },
+    async showPole(row) {
+      this.openDialog()
     },
     handleClose() {
       this.$confirm('确认关闭？')
