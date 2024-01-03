@@ -18,10 +18,10 @@
         style="width: 100%"
       >
         <el-table-column type="index" label="序号" />
-        <el-table-column label="计费规则编号" width="120px" prop="ruleNumber" />
-        <el-table-column label="计费规则名称" width="120px" prop="ruleName" />
-        <el-table-column label="免费时长(分钟)" width="120px" prop="freeDuration" />
-        <el-table-column label="收费上限(元)" width="120px" prop="chargeCeiling" />
+        <el-table-column label="计费规则编号" prop="ruleNumber" />
+        <el-table-column label="计费规则名称" prop="ruleName" />
+        <el-table-column label="免费时长(分钟)" prop="freeDuration" />
+        <el-table-column label="收费上限(元)" prop="chargeCeiling" />
         <el-table-column label="计费方式" width="100px">
           <template #default="scope">
             {{ formatChargeType(scope.row.chargeType) }}

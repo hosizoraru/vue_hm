@@ -28,16 +28,16 @@
         stripe
       >
         <el-table-column label="序号" type="index" />
-        <el-table-column label="一体杆名称" width="150px" prop="poleName" sortable />
-        <el-table-column label="一体杆编号" width="120px" prop="poleNumber" sortable />
-        <el-table-column label="故障类型" width="150px" prop="errorType" sortable />
-        <el-table-column label="处置状态" width="100px" prop="handleStatus" :formatter="formatHandleStatusStatus" sortable />
-        <el-table-column label="告警时间" width="160px" prop="warningTime" sortable />
+        <el-table-column label="一体杆名称" prop="poleName" sortable />
+        <el-table-column label="一体杆编号" prop="poleNumber" sortable />
+        <el-table-column label="故障类型" prop="errorType" sortable />
+        <el-table-column label="处置状态" prop="handleStatus" :formatter="formatHandleStatusStatus" sortable />
+        <el-table-column label="告警时间" prop="warningTime" sortable />
         <el-table-column fixed="right" label="操作">
           <template #default="scope">
             <el-button size="mini" :disabled="scope.row.status !== 0" type="text">派单</el-button>
             <el-button size="mini" type="text">详情</el-button>
-            <el-button size="mini" :disabled="scope.row.status === 3" type="text">删除</el-button>
+            <el-button size="mini" :disabled="scope.row.status === 3" type="text" @click="deleteWarning(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -59,7 +59,7 @@
 <script>
 
 import item from '@/layout/components/Sidebar/Item.vue'
-import { getPoleWarningListAPI } from '@/api/polewarning'
+import { deletePoleWarningAPI, getPoleWarningListAPI } from '@/api/polewarning'
 
 export default {
   data() {
@@ -128,6 +128,30 @@ export default {
     formatHandleStatusStatus(row, column, cellValue) {
       const status = this.handleStatusList.find(item => item.id === cellValue)
       return status ? status.name : '---'
+    },
+    deleteWarning(id) {
+      this.$confirm('确认删除？', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(
+        async() => {
+          await deletePoleWarningAPI(id)
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          })
+          await this.getList()
+        }
+      ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
+      )
     }
   }
 }
