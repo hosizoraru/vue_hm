@@ -36,7 +36,7 @@
         <el-table-column fixed="right" label="操作">
           <template #default="scope">
             <el-button size="mini" :disabled="scope.row.status !== 0" type="text">派单</el-button>
-            <el-button size="mini" type="text">详情</el-button>
+            <el-button size="mini" type="text" @click="jumpToDetailRodWarn(scope.row.id)">详情</el-button>
             <el-button size="mini" :disabled="scope.row.status === 3" type="text" @click="deleteWarning(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -152,6 +152,9 @@ export default {
           })
         }
       )
+    },
+    jumpToDetailRodWarn(id) {
+      this.$router.push('/infoRodWarn?id=' + id)
     }
   }
 }

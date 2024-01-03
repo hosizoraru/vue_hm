@@ -33,6 +33,11 @@ export const routes = [
     hidden: true // 对菜单隐藏
   },
   {
+    path: '/infoRodWarn',
+    component: () => import('@/views/Rod/RodWarn/infoRodWarn'),
+    hidden: true // 对菜单隐藏
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/workbench'
