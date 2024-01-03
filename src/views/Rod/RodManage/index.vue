@@ -18,7 +18,7 @@
     </div>
     <div class="create-container">
       <el-button-group>
-        <el-button type="primary" :round="true" @click="addCard">添加一体杆<i class="el-icon-upload el-icon--right" /></el-button>
+        <el-button type="primary" :round="true" @click="openDialog">添加一体杆<i class="el-icon-upload el-icon--right" /></el-button>
         <el-button type="danger" :round="true" icon="el-icon-delete" @click="deletePoles">批量删除</el-button>
       </el-button-group>
       <el-button-group>
@@ -47,8 +47,8 @@
         <el-table-column label="运行状态" prop="poleStatus" sortable :formatter="formatPoleStatus" />
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
-            <el-button size="mini" type="text">查看</el-button>
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" @close="clearForm" type="text">查看</el-button>
+            <el-button size="mini" @close="clearForm" type="text">编辑</el-button>
             <el-button size="mini" type="text" @click="deletePole(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -82,6 +82,8 @@ export default {
       total: 0,
       value: false,
       loadingFlag: true,
+      dialogVisible: false,
+      dialogUpdate: false,
       type: '',
       pageSizes: [2, 3, 5, 10, 15, 20, 30],
       params: {
@@ -139,9 +141,6 @@ export default {
     handleCurrentChange(page) {
       this.params.page = page
       this.getList()
-    },
-    addCard() {
-      this.$router.push('/addCard')
     },
     doSearch() {
       this.params.page = 1
@@ -210,13 +209,6 @@ export default {
       this.loadingFlag = true
       await this.getList()
     },
-    jumpToUpdateCard(id) {
-      this.$router.push('/addCard?id=' + id)
-      this.$store.commit('user/setInputStatus', false)
-    },
-    jumpToDetailCard(id) {
-      this.$router.push('/infoCard?id=' + id)
-    },
     formatPoleStatus(row, column, cellValue) {
       const status = this.poleStatusList.find(item => item.id === cellValue)
       return status ? status.name : '---'
@@ -224,6 +216,32 @@ export default {
     formatPoleType(row, column, cellValue) {
       const type = this.poleTypeList.find(item => item.id === cellValue)
       return type ? type.name : '---'
+    },
+    openDialog() {
+    },
+    closeDialog() {
+    },
+    confirmAdd() {
+    },
+    clearForm() {
+    },
+    updatePole(id) {
+    },
+    handleClose() {
+      this.$confirm('确认关闭？')
+        .then(
+          () => {
+            this.closeDialog()
+            this.clearForm()
+          }
+        ).catch(
+        () => {
+          this.$message({
+            type: 'info',
+            message: '已取消关闭'
+          })
+        }
+      )
     }
   }
 }

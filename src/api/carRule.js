@@ -6,7 +6,7 @@ import request from '@/utils/request'
 
 /**
  * 获取规则列表
- * @param { page, pageSize} params
+ * @param {{pageSize: number, page: number}} params
  * @returns
  */
 export function getRuleListAPI(params) {
