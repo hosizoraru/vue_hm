@@ -90,20 +90,20 @@
           <el-form-item label="关联区域" prop="areaId">
             <el-select v-model="form.areaId" placeholder="请选择关联区域" :disabled="dialogUpdate">
               <el-option
-                v-for="item in areaDropList"
-                :key="item.areaId"
-                :value="item.areaId"
-                :label="item.areaName"
+                v-for="item1 in areaDropList"
+                :key="item1.areaId"
+                :value="item1.areaId"
+                :label="item1.areaName"
               />
             </el-select>
           </el-form-item>
           <el-form-item label="一体杆类型" prop="poleType">
             <el-select v-model="form.poleType" placeholder="请选择关联区域" :disabled="dialogUpdate">
               <el-option
-                v-for="item in poleTypeList"
-                :key="item.id"
-                :value="item.id"
-                :label="item.name"
+                v-for="item2 in poleTypeList"
+                :key="item2.id"
+                :value="item2.id"
+                :label="item2.name"
               />
             </el-select>
           </el-form-item>
